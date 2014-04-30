@@ -12,7 +12,7 @@
 class TextNode : public SceneNode
 {
 	public:
-		explicit			TextNode(const FontHolder& fonts, const std::string& text);
+		explicit			TextNode(const FontHolder& fonts, const std::string& text, unsigned int characterSize = 20u);
 
 		void				setString(const std::string& text);
 

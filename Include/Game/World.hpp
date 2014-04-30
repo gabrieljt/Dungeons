@@ -71,6 +71,7 @@ class World : private sf::NonCopyable
 		std::array<SceneNode*, LayerCount>	mSceneLayers;
 		CommandQueue						mCommandQueue;
 
+		unsigned int 						mTileSize;
 		sf::FloatRect						mWorldBounds;
 		sf::Vector2f						mSpawnPosition;
 		Character*							mPlayerCharacter;

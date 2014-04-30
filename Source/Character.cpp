@@ -28,7 +28,8 @@ Character::Character(Type type, const TextureHolder& textures, const FontHolder&
 {
 	centerOrigin(mSprite);
 
-	std::unique_ptr<TextNode> healthDisplay(new TextNode(fonts, ""));
+	std::unique_ptr<TextNode> healthDisplay(new TextNode(fonts, ""
+		, (unsigned int) std::min(getBoundingRect().width, getBoundingRect().height) / 2.f));
 	mHealthDisplay = healthDisplay.get();
 	attachChild(std::move(healthDisplay));
 
@@ -131,7 +132,7 @@ void Character::updateTexts()
 		mHealthDisplay->setString("");
 	else
 		mHealthDisplay->setString(toString(getHitpoints()) + " HP");
-	mHealthDisplay->setPosition(0.f, 50.f);
+	mHealthDisplay->setPosition(0.f, 15.f);
 	mHealthDisplay->setRotation(-getRotation());
 }
 

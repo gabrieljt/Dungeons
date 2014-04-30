@@ -19,7 +19,8 @@ World::World(sf::RenderTarget& outputTarget, FontHolder& fonts, SoundPlayer& sou
 , mSounds(sounds)
 , mSceneGraph()
 , mSceneLayers()
-, mWorldBounds(0.f, 0.f, 1024.f, 1024.f)
+, mTileSize(16u)
+, mWorldBounds(0.f, 0.f, mTileSize * 100.f, mTileSize * 100.f)
 , mSpawnPosition(mWorldBounds.width / 2.f, mWorldBounds.height / 2.f)
 , mPlayerCharacter(nullptr)
 {
@@ -66,12 +67,16 @@ bool World::hasAlivePlayer() const
 
 void World::loadTextures()
 {
-	mTextures.load(Textures::Characters, "Media/Textures/characters.png");
+	mTextures.load(Textures::Characters,	"Media/Textures/characters.png");
+	mTextures.load(Textures::Tiles,			"Media/Textures/tiles.png");
 }
 
 void World::setupView()
 {
+	sf::Vector2u visibleArea(mTileSize * 10u, mTileSize * 10u);
+	auto zoom = std::min(visibleArea.x, visibleArea.y) / std::min(mWorldView.getSize().x, mWorldView.getSize().y);	
 	mWorldView.setCenter(mSpawnPosition);	
+	mWorldView.zoom(zoom);
 }
 
 void World::adaptViewPosition()

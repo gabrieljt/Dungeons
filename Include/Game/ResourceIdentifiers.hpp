@@ -16,6 +16,7 @@ namespace Textures
 	enum ID
 	{
 		Characters,
+		Tiles,
 		Particle,
 	};
 }
