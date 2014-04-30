@@ -39,6 +39,8 @@ class World : private sf::NonCopyable
 
 	private:
 		void								loadTextures();
+		void								setupView();
+		void								adaptViewPosition();
 		void								adaptPlayerPosition();
 		void								adaptPlayerVelocity();
 		void								handleCollisions();

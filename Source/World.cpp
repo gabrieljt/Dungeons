@@ -27,14 +27,13 @@ World::World(sf::RenderTarget& outputTarget, FontHolder& fonts, SoundPlayer& sou
 
 	loadTextures();
 	buildScene();
-
-	// Prepare the view
-	mWorldView.setCenter(mSpawnPosition);
+	setupView();
 }
 
 void World::update(sf::Time dt)
-{
+{	
 	mPlayerCharacter->setVelocity(0.f, 0.f);
+	adaptViewPosition();
 
 	// Forward commands to scene graph, adapt velocity (scrolling, diagonal correction)
 	while (!mCommandQueue.isEmpty())
@@ -70,17 +69,35 @@ void World::loadTextures()
 	mTextures.load(Textures::Characters, "Media/Textures/characters.png");
 }
 
+void World::setupView()
+{
+	mWorldView.setCenter(mSpawnPosition);	
+}
+
+void World::adaptViewPosition()
+{
+    // Keep camera's position and view bounds inside the world bounds
+    sf::Vector2f borderDistance = sf::Vector2f(getViewBounds().width / 2.f, getViewBounds().height / 2.f);
+    
+	sf::Vector2f position = mPlayerCharacter->getPosition();
+    mWorldView.setCenter(position);
+	position.x = std::max(position.x, mWorldBounds.left + borderDistance.x);
+	position.x = std::min(position.x, mWorldBounds.left + mWorldBounds.width - borderDistance.x);
+	position.y = std::max(position.y, mWorldBounds.top + borderDistance.y);
+	position.y = std::min(position.y, mWorldBounds.top + mWorldBounds.height - borderDistance.y);
+	mWorldView.setCenter(position);
+}
+
 void World::adaptPlayerPosition()
 {
-	// Keep player's position inside the screen bounds, at least borderDistance units from the border
-	sf::FloatRect viewBounds = getViewBounds();
-	const float borderDistance = 40.f;
+	// Keep player's position inside the world bounds, at least borderDistance units from the border
+	const float borderDistance = 12.f;
 
 	sf::Vector2f position = mPlayerCharacter->getPosition();
-	position.x = std::max(position.x, viewBounds.left + borderDistance);
-	position.x = std::min(position.x, viewBounds.left + viewBounds.width - borderDistance);
-	position.y = std::max(position.y, viewBounds.top + borderDistance);
-	position.y = std::min(position.y, viewBounds.top + viewBounds.height - borderDistance);
+	position.x = std::max(position.x, mWorldBounds.left + borderDistance);
+	position.x = std::min(position.x, mWorldBounds.left + mWorldBounds.width - borderDistance);
+	position.y = std::max(position.y, mWorldBounds.top + borderDistance);
+	position.y = std::min(position.y, mWorldBounds.top + mWorldBounds.height - borderDistance);
 	mPlayerCharacter->setPosition(position);
 }
 
