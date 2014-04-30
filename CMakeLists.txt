@@ -40,6 +40,7 @@ set(SOURCE
 	${PROJECT_SOURCE_DIR}/Source/Command.cpp
 	${PROJECT_SOURCE_DIR}/Source/CommandQueue.cpp
 	${PROJECT_SOURCE_DIR}/Source/DataTables.cpp
+	${PROJECT_SOURCE_DIR}/Source/Dungeon.cpp
 	${PROJECT_SOURCE_DIR}/Source/EmitterNode.cpp
 	${PROJECT_SOURCE_DIR}/Source/Entity.cpp
 	${PROJECT_SOURCE_DIR}/Source/GameState.cpp
@@ -55,8 +56,9 @@ set(SOURCE
 	${PROJECT_SOURCE_DIR}/Source/State.cpp
 	${PROJECT_SOURCE_DIR}/Source/StateStack.cpp
 	${PROJECT_SOURCE_DIR}/Source/TextNode.cpp
+	${PROJECT_SOURCE_DIR}/Source/Tile.cpp
+	${PROJECT_SOURCE_DIR}/Source/Tilemap.cpp
 	${PROJECT_SOURCE_DIR}/Source/Utility.cpp
-	${PROJECT_SOURCE_DIR}/Source/World.cpp
 )
 
 set(HEADERS
@@ -68,6 +70,7 @@ set(HEADERS
 	${PROJECT_SOURCE_DIR}/Include/Game/Command.hpp
 	${PROJECT_SOURCE_DIR}/Include/Game/CommandQueue.hpp
 	${PROJECT_SOURCE_DIR}/Include/Game/DataTables.hpp
+	${PROJECT_SOURCE_DIR}/Include/Game/Dungeon.hpp	
 	${PROJECT_SOURCE_DIR}/Include/Game/EmitterNode.hpp
 	${PROJECT_SOURCE_DIR}/Include/Game/Entity.hpp
 	${PROJECT_SOURCE_DIR}/Include/Game/Foreach.hpp
@@ -87,8 +90,9 @@ set(HEADERS
 	${PROJECT_SOURCE_DIR}/Include/Game/StateIdentifiers.hpp
 	${PROJECT_SOURCE_DIR}/Include/Game/StateStack.hpp
 	${PROJECT_SOURCE_DIR}/Include/Game/TextNode.hpp
+	${PROJECT_SOURCE_DIR}/Include/Game/Tile.hpp
+	${PROJECT_SOURCE_DIR}/Include/Game/Tilemap.hpp
 	${PROJECT_SOURCE_DIR}/Include/Game/Utility.hpp
-	${PROJECT_SOURCE_DIR}/Include/Game/World.hpp	
 )
 
 # Define Executable

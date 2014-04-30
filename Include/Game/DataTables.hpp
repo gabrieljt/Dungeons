@@ -35,6 +35,13 @@ struct CharacterData
 	bool							hasIdleAnimation;
 };
 
+struct TileData
+{
+	int 							hitpoints;
+	Textures::ID					texture;
+	sf::IntRect						textureRect;	
+};
+
 struct ParticleData
 {
 	sf::Color						color;
@@ -42,6 +49,7 @@ struct ParticleData
 };
 
 std::vector<CharacterData>	initializeCharacterData();
+std::vector<TileData>		initializeTileData();
 std::vector<ParticleData>	initializeParticleData();
 
 #endif // GAME_DATATABLES_HPP

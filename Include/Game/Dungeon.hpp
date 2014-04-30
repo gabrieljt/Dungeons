@@ -1,5 +1,5 @@
-#ifndef GAME_WORLD_HPP
-#define GAME_WORLD_HPP
+#ifndef GAME_DUNGEON_HPP
+#define GAME_DUNGEON_HPP
 
 #include <Game/ResourceHolder.hpp>
 #include <Game/ResourceIdentifiers.hpp>
@@ -25,10 +25,10 @@ namespace sf
 	class RenderTarget;
 }
 
-class World : private sf::NonCopyable
+class Dungeon : private sf::NonCopyable
 {
 	public:
-											World(sf::RenderTarget& outputTarget, FontHolder& fonts, SoundPlayer& sounds);
+											Dungeon(sf::RenderTarget& outputTarget, FontHolder& fonts, SoundPlayer& sounds, const unsigned int level);
 		void								update(sf::Time dt);
 		void								draw();
 		
@@ -62,7 +62,7 @@ class World : private sf::NonCopyable
 	private:
 		sf::RenderTarget&					mTarget;
 		sf::RenderTexture					mSceneTexture;
-		sf::View							mWorldView;
+		sf::View							mDungeonView;
 		TextureHolder						mTextures;
 		FontHolder&							mFonts;
 		SoundPlayer&						mSounds;
@@ -71,12 +71,13 @@ class World : private sf::NonCopyable
 		std::array<SceneNode*, LayerCount>	mSceneLayers;
 		CommandQueue						mCommandQueue;
 
-		unsigned int 						mTileSize;
-		sf::FloatRect						mWorldBounds;
-		sf::Vector2f						mSpawnPosition;
+		const unsigned int 					mLevel;
+		const unsigned int 					mTileSize;
+		sf::FloatRect						mDungeonBounds;
+		sf::Vector2f						mSpawnPosition;		
 		Character*							mPlayerCharacter;
 
 		BloomEffect							mBloomEffect;
 };
 
-#endif // GAME_WORLD_HPP
+#endif // GAME_DUNGEON_HPP

@@ -1,5 +1,6 @@
 #include <Game/DataTables.hpp>
 #include <Game/Character.hpp>
+#include <Game/Tile.hpp>
 #include <Game/Particle.hpp>
 
 
@@ -15,6 +16,21 @@ std::vector<CharacterData> initializeCharacterData()
 	data[Character::Player].texture = Textures::Characters;
 	data[Character::Player].textureRect = sf::IntRect(16, 46, 16, 18);
 	data[Character::Player].hasIdleAnimation = false;
+
+	return data;
+}
+
+std::vector<TileData> initializeTileData()
+{
+	std::vector<TileData> data(Tile::TypeCount);
+
+	data[Tile::Floor].hitpoints = 1;
+	data[Tile::Floor].texture = Textures::Tiles;
+	data[Tile::Floor].textureRect = sf::IntRect(0, 0, 16, 16);
+
+	data[Tile::Wall].hitpoints = 1;
+	data[Tile::Wall].texture = Textures::Tiles;
+	data[Tile::Wall].textureRect = sf::IntRect(80, 32, 16, 16);
 
 	return data;
 }

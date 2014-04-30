@@ -12,8 +12,9 @@ namespace Category
 		PlayerCharacter		= 1 << 1,
 		AlliedCharacter		= 1 << 2,
 		EnemyCharacter		= 1 << 3,
-		ParticleSystem		= 1 << 4,
-		SoundEffect			= 1 << 5,
+		Tile				= 1 << 4,
+		ParticleSystem		= 1 << 5,
+		SoundEffect			= 1 << 6,
 
 		Character = PlayerCharacter | AlliedCharacter | EnemyCharacter,
 	};

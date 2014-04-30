@@ -6,21 +6,21 @@
 
 GameState::GameState(StateStack& stack, Context context)
 : State(stack, context)
-, mWorld(*context.window, *context.fonts, *context.sounds)
+, mDungeon(*context.window, *context.fonts, *context.sounds, 0u)
 , mPlayer(*context.player)
 {
 }
 
 void GameState::draw()
 {
-	mWorld.draw();
+	mDungeon.draw();
 }
 
 bool GameState::update(sf::Time dt)
 {
-	mWorld.update(dt);
+	mDungeon.update(dt);
 
-	CommandQueue& commands = mWorld.getCommandQueue();
+	CommandQueue& commands = mDungeon.getCommandQueue();
 	mPlayer.handleRealtimeInput(commands);
 
 	return true;
@@ -29,7 +29,7 @@ bool GameState::update(sf::Time dt)
 bool GameState::handleEvent(const sf::Event& event)
 {
 	// Game input handling
-	CommandQueue& commands = mWorld.getCommandQueue();
+	CommandQueue& commands = mDungeon.getCommandQueue();
 	mPlayer.handleEvent(event, commands);
 
 	// Escape pressed, trigger the pause screen

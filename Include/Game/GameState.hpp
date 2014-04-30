@@ -2,7 +2,7 @@
 #define GAME_GAMESTATE_HPP
 
 #include <Game/State.hpp>
-#include <Game/World.hpp>
+#include <Game/Dungeon.hpp>
 #include <Game/Player.hpp>
 
 #include <SFML/Graphics/Sprite.hpp>
@@ -20,7 +20,7 @@ class GameState : public State
 
 
 	private:
-		World				mWorld;
+		Dungeon				mDungeon;
 		Player&				mPlayer;
 };
 
