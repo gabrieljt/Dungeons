@@ -32,7 +32,7 @@ struct CharacterData
 	Textures::ID					texture;
 	sf::IntRect						textureRect;
 	std::vector<Direction>			directions;
-	bool							hasWalkAnimation;
+	bool							hasIdleAnimation;
 };
 
 struct ParticleData

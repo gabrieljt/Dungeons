@@ -13,8 +13,8 @@ std::vector<CharacterData> initializeCharacterData()
 	data[Character::Player].hitpoints = 100;
 	data[Character::Player].speed = 200.f;
 	data[Character::Player].texture = Textures::Characters;
-	data[Character::Player].textureRect = sf::IntRect(2, 0, 22, 24);
-	data[Character::Player].hasWalkAnimation = false;
+	data[Character::Player].textureRect = sf::IntRect(16, 46, 16, 18);
+	data[Character::Player].hasIdleAnimation = false;
 
 	return data;
 }

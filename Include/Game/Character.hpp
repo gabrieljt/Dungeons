@@ -39,13 +39,13 @@ class Character : public Entity
 		void					updateMovementPattern(sf::Time dt);
 
 		void					updateTexts();
-		void					updateWalkAnimation();
+		void					updateIdleAnimation();
 
 
 	private:
 		Type					mType;
 		sf::Sprite				mSprite;
-		Animation				mWalk;
+		Animation				mIdle;
 
 		float					mTravelledDistance;
 		std::size_t				mDirectionIndex;

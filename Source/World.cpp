@@ -19,7 +19,7 @@ World::World(sf::RenderTarget& outputTarget, FontHolder& fonts, SoundPlayer& sou
 , mSounds(sounds)
 , mSceneGraph()
 , mSceneLayers()
-, mWorldBounds(0.f, 0.f, 5000.f, 5000.f)
+, mWorldBounds(0.f, 0.f, 1024.f, 1024.f)
 , mSpawnPosition(mWorldBounds.width / 2.f, mWorldBounds.height / 2.f)
 , mPlayerCharacter(nullptr)
 {

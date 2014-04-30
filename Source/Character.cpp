@@ -43,7 +43,7 @@ void Character::drawCurrent(sf::RenderTarget& target, sf::RenderStates states) c
 void Character::updateCurrent(sf::Time dt, CommandQueue& commands)
 {
 	updateTexts();
-	updateWalkAnimation();
+	updateIdleAnimation();
 
 	if (isDestroyed())
 	{
@@ -135,18 +135,18 @@ void Character::updateTexts()
 	mHealthDisplay->setRotation(-getRotation());
 }
 
-void Character::updateWalkAnimation()
+void Character::updateIdleAnimation()
 {
 	// check sprite sheet
-	if (Table[mType].hasWalkAnimation)
+	if (Table[mType].hasIdleAnimation)
 	{
 		sf::IntRect textureRect = Table[mType].textureRect;
 
-		// Walk left: Texture rect offset once
+		// Idle left: Texture rect offset once
 		if (getVelocity().x < 0.f)
 			textureRect.left += textureRect.width;
 
-		// Walk right: Texture rect offset twice
+		// Idle right: Texture rect offset twice
 		else if (getVelocity().x > 0.f)
 			textureRect.left += 2 * textureRect.width;
 
