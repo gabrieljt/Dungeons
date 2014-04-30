@@ -22,7 +22,7 @@ Application::Application()
 	mWindow.setKeyRepeatEnabled(false);
 	mWindow.setVerticalSyncEnabled(true);
 
-	mFonts.load(Fonts::Main, "Media/Fonts/Sansation.ttf");
+	mFonts.load(Fonts::Main, "Media/Fonts/SDS_8x8.ttf");
 
 	mStatisticsText.setFont(mFonts.get(Fonts::Main));
 	mStatisticsText.setPosition(5.f, 5.f);
