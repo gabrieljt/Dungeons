@@ -1,0 +1,2 @@
+#define Dungeons_VERSION_MAJOR @sfml_game_VERSION_MAJOR@
+#define Dungeons_VERSION_MINOR @sfml_game_VERSION_MINOR@
