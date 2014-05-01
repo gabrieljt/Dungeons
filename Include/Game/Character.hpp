@@ -49,7 +49,6 @@ class Character : public Entity
 
 		float					mTravelledDistance;
 		std::size_t				mDirectionIndex;
-		TextNode*				mHealthDisplay;
 };
 
 #endif // GAME_CHARACTER_HPP

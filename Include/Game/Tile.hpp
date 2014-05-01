@@ -13,7 +13,7 @@ class Tile : public Entity
 {
 	public:
 		typedef std::pair<unsigned int, unsigned int> TileID;
-		static const unsigned int Size = 16u;
+		static const unsigned int Size;
 
 
 	public:

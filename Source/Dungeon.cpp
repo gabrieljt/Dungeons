@@ -92,7 +92,7 @@ void Dungeon::adaptViewPosition()
 
 void Dungeon::adaptPlayerPosition()
 {
-	const auto borderDistance = Tile::Size / 2u - 1u;
+	const auto borderDistance = Tile::Size / 2u;
 
 	sf::Vector2f position = mPlayerCharacter->getPosition();
 	position.x = std::max(position.x, mDungeonBounds.left + borderDistance);

@@ -14,8 +14,10 @@ using namespace std::placeholders;
 
 namespace
 {
-	const std::vector<TileData> Table = initializeTileData();
+	const std::vector<TileData> Table 	= initializeTileData();
 }
+
+const unsigned int Tile::Size 		= 16u;
 
 Tile::Tile(Type type, const TextureHolder& textures, const FontHolder& fonts, const TileID id)
 : Entity(Table[type].hitpoints)
@@ -83,7 +85,7 @@ bool Tile::isWalkable() const
 void Tile::updateTexts()
 {	
 	mIdDisplay->setString(toString(mId.first) + toString(mId.second));
-	mIdDisplay->setPosition(Size, Size);
+	mIdDisplay->setPosition(Size / 2, Size / 2);
 	mIdDisplay->setRotation(-getRotation());
 	mIdDisplay->setCharacterSize(7u);
 }
