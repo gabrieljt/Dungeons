@@ -6,6 +6,7 @@
 #include <Game/SceneNode.hpp>
 #include <Game/SpriteNode.hpp>
 #include <Game/Character.hpp>
+#include <Game/Tile.hpp>
 #include <Game/CommandQueue.hpp>
 #include <Game/Command.hpp>
 #include <Game/BloomEffect.hpp>
@@ -47,6 +48,7 @@ class Dungeon : private sf::NonCopyable
 		void								updateSounds();
 
 		void								buildScene();
+		void								addTile(Tile::TileID id, Tile::Type);
 		sf::FloatRect						getViewBounds() const;
 
 
@@ -71,7 +73,6 @@ class Dungeon : private sf::NonCopyable
 		std::array<SceneNode*, LayerCount>	mSceneLayers;
 		CommandQueue						mCommandQueue;
 
-		const unsigned int 					mTileSize;
 		sf::FloatRect						mDungeonBounds;
 		sf::Vector2f						mSpawnPosition;		
 		Character*							mPlayerCharacter;

@@ -17,7 +17,7 @@ namespace
 	const std::vector<TileData> Table = initializeTileData();
 }
 
-Tile::Tile(Type type, const TextureHolder& textures, const FontHolder& fonts, const unsigned int id)
+Tile::Tile(Type type, const TextureHolder& textures, const FontHolder& fonts, const TileID id)
 : Entity(Table[type].hitpoints)
 , mType(type)
 , mSprite(textures.get(Table[type].texture), Table[type].textureRect)

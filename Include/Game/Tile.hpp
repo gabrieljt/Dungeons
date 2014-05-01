@@ -11,6 +11,11 @@
 class Tile : public Entity
 {
 	public:
+		typedef std::pair<unsigned int, unsigned int> TileID;
+		static const unsigned int Size = 16u;
+
+
+	public:
 		enum Type
 		{
 			Floor,
@@ -20,7 +25,7 @@ class Tile : public Entity
 
 	
 	public:
-								Tile(Type type, const TextureHolder& textures, const FontHolder& fonts, const unsigned int id = 0u);
+								Tile(Type type, const TextureHolder& textures, const FontHolder& fonts, const TileID);
 
 		virtual unsigned int	getCategory() const;
 		virtual sf::FloatRect	getBoundingRect() const;
@@ -39,7 +44,7 @@ class Tile : public Entity
 		Type					mType;
 		sf::Sprite				mSprite;		
 
-		const unsigned int 		mId;
+		const TileID			mId;		
 };
 
 #endif // GAME_TILE_HPP

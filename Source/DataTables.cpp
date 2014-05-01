@@ -12,7 +12,7 @@ std::vector<CharacterData> initializeCharacterData()
 	std::vector<CharacterData> data(Character::TypeCount);
 
 	data[Character::Player].hitpoints = 100;
-	data[Character::Player].speed = 200.f;
+	data[Character::Player].speed = 50.f;
 	data[Character::Player].texture = Textures::Characters;
 	data[Character::Player].textureRect = sf::IntRect(16, 48, 16, 16);
 	data[Character::Player].hasIdleAnimation = false;
@@ -26,7 +26,7 @@ std::vector<TileData> initializeTileData()
 
 	data[Tile::Floor].hitpoints = 1;
 	data[Tile::Floor].texture = Textures::Tiles;
-	data[Tile::Floor].textureRect = sf::IntRect(0, 0, 16, 16);
+	data[Tile::Floor].textureRect = sf::IntRect(32, 32, 16, 16);
 
 	data[Tile::Wall].hitpoints = 1;
 	data[Tile::Wall].texture = Textures::Tiles;

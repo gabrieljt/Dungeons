@@ -1,5 +1,4 @@
 #include <Game/Dungeon.hpp>
-#include <Game/Tile.hpp>
 #include <Game/Foreach.hpp>
 #include <Game/TextNode.hpp>
 #include <Game/ParticleNode.hpp>
@@ -20,7 +19,6 @@ Dungeon::Dungeon(sf::RenderTarget& outputTarget, FontHolder& fonts, SoundPlayer&
 , mSounds(sounds)
 , mSceneGraph()
 , mSceneLayers()
-, mTileSize(16u)
 , mDungeonBounds()
 , mSpawnPosition()
 , mPlayerCharacter(nullptr)
@@ -73,8 +71,8 @@ void Dungeon::loadTextures()
 
 void Dungeon::setupView()
 {
-	sf::Vector2u visibleArea(mTileSize * 5u, mTileSize * 5u); 
-	auto zoom = std::min(visibleArea.x, visibleArea.y) / std::min(mView.getSize().x, mView.getSize().y);	
+	auto visibleArea = Tile::Size * 5u; // 5x5 cells
+	auto zoom = visibleArea / std::min(mView.getSize().x, mView.getSize().y);	
 	mView.setCenter(mSpawnPosition);	
 	mView.zoom(zoom);
 }
@@ -94,7 +92,7 @@ void Dungeon::adaptViewPosition()
 
 void Dungeon::adaptPlayerPosition()
 {
-	const auto borderDistance = mTileSize / 2u - 1u;
+	const auto borderDistance = Tile::Size / 2u - 1u;
 
 	sf::Vector2f position = mPlayerCharacter->getPosition();
 	position.x = std::max(position.x, mDungeonBounds.left + borderDistance);
@@ -106,11 +104,10 @@ void Dungeon::adaptPlayerPosition()
 
 void Dungeon::adaptPlayerVelocity()
 {
-	sf::Vector2f velocity = mPlayerCharacter->getVelocity();
-
 	// If moving diagonally, reduce velocity (to have always same velocity)
+	sf::Vector2f velocity = mPlayerCharacter->getVelocity();
 	if (velocity.x != 0.f && velocity.y != 0.f)
-		mPlayerCharacter->setVelocity(velocity / std::sqrt(2.f));
+		mPlayerCharacter->setVelocity(velocity / std::sqrt(2.f));		
 }
 
 bool matchesCategories(SceneNode::Pair& colliders, Category::Type type1, Category::Type type2)
@@ -177,36 +174,45 @@ void Dungeon::buildScene()
 	}
 
 	// TODO: generate random dungeon (pixels) and map (tiles) bounds
-	const sf::Vector2u tilemapSize = sf::Vector2u(10u, 10u); // 10x10 cells
-	mDungeonBounds = sf::FloatRect(0.f, 0.f, mTileSize * tilemapSize.x, mTileSize * tilemapSize.y); //1600x1600 pixels
+	const auto tilemapSize = 10u; // 10x10 cells
+	mDungeonBounds = sf::FloatRect(0.f, 0.f, Tile::Size * tilemapSize, Tile::Size * tilemapSize); //1600x1600 pixels
 	
 	// TODO: generate LEVEL!!!!
-	/*
-	std::unique_ptr<Tile> wallTile(new Tile(Tile::Wall, mTextures, mFonts));	
-	tile = wallTile.get();
-	tile->setPosition(16.f, 0.f);
-	mSceneLayers[Main]->attachChild(std::move(wallTile));
-	*/
-	
-	auto id = 0u;
-	for (int i = 0; i < tilemapSize.x; ++i)
-		for (int j = 0; j < tilemapSize.y; ++j)
+	for (auto x = 1u; x < tilemapSize - 1u; ++x)
+		for (auto y = 1u; y < tilemapSize - 1u; ++y)
 		{
-			std::unique_ptr<Tile> floorTile(new Tile(Tile::Floor, mTextures, mFonts, id));	
-			auto tile = floorTile.get();
-			tile->setPosition(i * mTileSize, j * mTileSize);
-			mSceneLayers[Background]->attachChild(std::move(floorTile));
-			++id;
+				Tile::TileID id(x, y);
+				addTile(id, Tile::Type::Floor);
 		}
 
-	//TODO: generate random spawn position
-	mSpawnPosition = sf::Vector2f(mDungeonBounds.width / 2.f, mDungeonBounds.height / 2.f);
+	for (auto i = 0u; i < tilemapSize; ++i)
+	{
+		Tile::TileID firstRow(i, 0);
+		Tile::TileID lastRow(i, tilemapSize - 1);
+		Tile::TileID firstColumn(0, i);
+		Tile::TileID lastColumn(tilemapSize - 1, i);
+		addTile(firstRow, Tile::Type::Wall);
+		addTile(lastRow, Tile::Type::Wall);
+		addTile(firstColumn, Tile::Type::Wall);
+		addTile(lastColumn, Tile::Type::Wall);
+	}
+
+	//TODO: generate random spawn position (get cell?)
+	mSpawnPosition = sf::Vector2f(8.f, 8.f);
 
 	// Add player's character
 	std::unique_ptr<Character> player(new Character(Character::Player, mTextures, mFonts));
 	mPlayerCharacter = player.get();
 	mPlayerCharacter->setPosition(mSpawnPosition);
 	mSceneLayers[Main]->attachChild(std::move(player));
+}
+
+void Dungeon::addTile(Tile::TileID id, Tile::Type type) 
+{
+	std::unique_ptr<Tile> tilePtr(new Tile(type, mTextures, mFonts, id));	
+	auto tile = tilePtr.get();
+	tile->setPosition(id.first * Tile::Size, id.second * Tile::Size);
+	mSceneLayers[Main]->attachChild(std::move(tilePtr));
 }
 
 sf::FloatRect Dungeon::getViewBounds() const
