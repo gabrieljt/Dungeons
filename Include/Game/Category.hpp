@@ -12,11 +12,13 @@ namespace Category
 		PlayerCharacter		= 1 << 1,
 		AlliedCharacter		= 1 << 2,
 		EnemyCharacter		= 1 << 3,
-		Tile				= 1 << 4,
-		ParticleSystem		= 1 << 5,
-		SoundEffect			= 1 << 6,
+		FloorTile			= 1 << 4,
+		WallTile			= 1 << 5,
+		ParticleSystem		= 1 << 6,
+		SoundEffect			= 1 << 7,
 
 		Character = PlayerCharacter | AlliedCharacter | EnemyCharacter,
+		Tile = FloorTile | WallTile,
 	};
 }
 

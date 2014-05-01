@@ -22,7 +22,14 @@ Tile::Tile(Type type, const TextureHolder& textures, const FontHolder& fonts, co
 , mType(type)
 , mSprite(textures.get(Table[type].texture), Table[type].textureRect)
 , mId(id)
+, mIdDisplay()
 {	
+	/*
+	std::unique_ptr<TextNode> idDisplay(new TextNode(fonts, ""));
+	mIdDisplay = idDisplay.get();
+	attachChild(std::move(idDisplay));
+	updateTexts();
+	*/
 }
 
 void Tile::drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const
@@ -42,7 +49,15 @@ void Tile::updateCurrent(sf::Time dt, CommandQueue& commands)
 
 unsigned int Tile::getCategory() const
 {
-	return Category::Tile;
+	switch (mType)
+	{
+		case Floor:
+			return Category::FloorTile;
+		case Wall:
+			return Category::WallTile;
+		default:
+			return Category::Tile;
+	}
 }
 
 sf::FloatRect Tile::getBoundingRect() const
@@ -63,4 +78,12 @@ void Tile::remove()
 bool Tile::isWalkable() const
 {
 	return mType == Floor;
+}
+
+void Tile::updateTexts()
+{	
+	mIdDisplay->setString(toString(mId.first) + toString(mId.second));
+	mIdDisplay->setPosition(Size, Size);
+	mIdDisplay->setRotation(-getRotation());
+	mIdDisplay->setCharacterSize(7u);
 }

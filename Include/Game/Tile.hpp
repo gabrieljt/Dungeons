@@ -4,6 +4,7 @@
 #include <Game/Entity.hpp>
 #include <Game/Command.hpp>
 #include <Game/ResourceIdentifiers.hpp>
+#include <Game/TextNode.hpp>
 
 #include <SFML/Graphics/Sprite.hpp>
 
@@ -33,6 +34,7 @@ class Tile : public Entity
 		virtual bool 			isMarkedForRemoval() const;	
 
 		bool					isWalkable() const;
+		void					updateTexts();
 
 
 	private:
@@ -45,6 +47,7 @@ class Tile : public Entity
 		sf::Sprite				mSprite;		
 
 		const TileID			mId;		
+		TextNode* 				mIdDisplay;
 };
 
 #endif // GAME_TILE_HPP

@@ -15,6 +15,7 @@ class TextNode : public SceneNode
 		explicit			TextNode(const FontHolder& fonts, const std::string& text);
 
 		void				setString(const std::string& text);
+		void				setCharacterSize(const unsigned int size);
 
 
 	private:

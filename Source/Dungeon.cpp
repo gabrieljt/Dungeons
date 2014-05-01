@@ -136,18 +136,15 @@ void Dungeon::handleCollisions()
 	mSceneGraph.checkSceneCollision(mSceneGraph, collisionPairs);
 
 	FOREACH(SceneNode::Pair pair, collisionPairs)
-	{
-		/*
-		if (matchesCategories(pair, Category::PlayerCharacter, Category::EnemyCharacter))
+	{		
+		if (matchesCategories(pair, Category::Character, Category::WallTile))
 		{
 			auto& player = static_cast<Character&>(*pair.first);
-			auto& enemy = static_cast<Character&>(*pair.second);
-
-			// Collision: Player damage = enemy's remaining HP
-			player.damage(enemy.getHitpoints());
-			enemy.destroy();
-		}
-		*/
+			auto& wall = static_cast<Tile&>(*pair.second);
+			// TODO: collision!
+			player.damage(wall.getHitpoints());
+			wall.destroy();
+		}		
 	}
 }
 
@@ -173,7 +170,7 @@ void Dungeon::buildScene()
 		mSceneGraph.attachChild(std::move(layer));
 	}
 
-	// TODO: generate random dungeon (pixels) and map (tiles) bounds
+	// TODO: generate "random" dungeon (pixels) and map (tiles) bounds
 	const auto tilemapSize = 10u; // 10x10 cells
 	mDungeonBounds = sf::FloatRect(0.f, 0.f, Tile::Size * tilemapSize, Tile::Size * tilemapSize); //1600x1600 pixels
 	
@@ -198,7 +195,8 @@ void Dungeon::buildScene()
 	}
 
 	//TODO: generate random spawn position (get cell?)
-	mSpawnPosition = sf::Vector2f(8.f, 8.f);
+	Tile::TileID tileId(5u, 5u);
+	mSpawnPosition = sf::Vector2f(tileId.first * Tile::Size, tileId.second * Tile::Size);
 
 	// Add player's character
 	std::unique_ptr<Character> player(new Character(Character::Player, mTextures, mFonts));

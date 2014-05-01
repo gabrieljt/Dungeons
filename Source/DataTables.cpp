@@ -11,7 +11,7 @@ std::vector<CharacterData> initializeCharacterData()
 {
 	std::vector<CharacterData> data(Character::TypeCount);
 
-	data[Character::Player].hitpoints = 100;
+	data[Character::Player].hitpoints = 10;
 	data[Character::Player].speed = 50.f;
 	data[Character::Player].texture = Textures::Characters;
 	data[Character::Player].textureRect = sf::IntRect(16, 48, 16, 16);
