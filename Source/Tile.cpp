@@ -25,7 +25,8 @@ Tile::Tile(Type type, const TextureHolder& textures, const FontHolder& fonts, co
 , mSprite(textures.get(Table[type].texture), Table[type].textureRect)
 , mId(id)
 , mIdDisplay()
-{		
+{
+	centerOrigin(mSprite);
 	if (Utility::Debug)
 	{
 		std::unique_ptr<TextNode> idDisplay(new TextNode(fonts, ""));
@@ -86,7 +87,7 @@ bool Tile::isWalkable() const
 void Tile::updateTexts()
 {	
 	mIdDisplay->setString(toString(mId.first) + toString(mId.second));
-	mIdDisplay->setPosition(Size + Size / 2.5, Size);
+	mIdDisplay->setPosition(0.f, 0.f);
 	mIdDisplay->setRotation(-getRotation());
 	mIdDisplay->setCharacterSize(5u);
 }

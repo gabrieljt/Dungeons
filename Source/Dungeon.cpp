@@ -92,7 +92,7 @@ void Dungeon::adaptViewPosition()
 
 void Dungeon::adaptPlayerPosition()
 {
-	const auto borderDistance = Tile::Size / 2u;
+	const auto borderDistance = Tile::Size / 2;
 
 	sf::Vector2f position = mPlayerCharacter->getPosition();
 	position.x = std::max(position.x, mDungeonBounds.left + borderDistance);
@@ -209,7 +209,8 @@ void Dungeon::addTile(Tile::TileID id, Tile::Type type)
 {
 	std::unique_ptr<Tile> tilePtr(new Tile(type, mTextures, mFonts, id));	
 	auto tile = tilePtr.get();
-	tile->setPosition(id.first * Tile::Size, id.second * Tile::Size);
+	// Tile has centered origin	
+	tile->setPosition(id.first * Tile::Size + Tile::Size / 2, id.second * Tile::Size + Tile::Size / 2);
 	mSceneLayers[Main]->attachChild(std::move(tilePtr));
 }
 
