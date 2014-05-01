@@ -14,7 +14,7 @@ std::vector<CharacterData> initializeCharacterData()
 	data[Character::Player].hitpoints = 100;
 	data[Character::Player].speed = 200.f;
 	data[Character::Player].texture = Textures::Characters;
-	data[Character::Player].textureRect = sf::IntRect(16, 46, 16, 18);
+	data[Character::Player].textureRect = sf::IntRect(18, 48, 12, 16);
 	data[Character::Player].hasIdleAnimation = false;
 
 	return data;

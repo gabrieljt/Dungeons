@@ -75,7 +75,7 @@ void Dungeon::loadTextures()
 
 void Dungeon::setupView()
 {
-	sf::Vector2u visibleArea(mTileSize * 10u, mTileSize * 10u); //10x10 cells, each cell has 16x16 pixels
+	sf::Vector2u visibleArea(mTileSize * 5u, mTileSize * 5u); //10x10 cells, each cell has 16x16 pixels
 	auto zoom = std::min(visibleArea.x, visibleArea.y) / std::min(mDungeonView.getSize().x, mDungeonView.getSize().y);	
 	mDungeonView.setCenter(mSpawnPosition);	
 	mDungeonView.zoom(zoom);
@@ -98,7 +98,7 @@ void Dungeon::adaptViewPosition()
 void Dungeon::adaptPlayerPosition()
 {
 	// Keep player's position inside the world bounds, at least borderDistance units from the border
-	const float borderDistance = 12.f;
+	const auto borderDistance = mTileSize / 2u - 1u;
 
 	sf::Vector2f position = mPlayerCharacter->getPosition();
 	position.x = std::max(position.x, mDungeonBounds.left + borderDistance);
@@ -182,17 +182,27 @@ void Dungeon::buildScene()
 	}
 
 	// TODO: generate random dungeon (pixels) and map (tiles) bounds
-	const sf::Vector2u tilemapSize = sf::Vector2u(100u, 100u); // 100x100 cells
+	const sf::Vector2u tilemapSize = sf::Vector2u(10u, 10u); // 10x10 cells
 	mDungeonBounds = sf::FloatRect(0.f, 0.f, mTileSize * tilemapSize.x, mTileSize * tilemapSize.y); //1600x1600 pixels
+	
 	// TODO: generate LEVEL!!!!
-	std::unique_ptr<Tile> floorTile(new Tile(Tile::Floor, mTextures, mFonts));	
-	auto tile = floorTile.get();
-	tile->setPosition(0.f, 0.f);
-	mSceneLayers[Background]->attachChild(std::move(floorTile));
+	/*
 	std::unique_ptr<Tile> wallTile(new Tile(Tile::Wall, mTextures, mFonts));	
 	tile = wallTile.get();
 	tile->setPosition(16.f, 0.f);
 	mSceneLayers[Main]->attachChild(std::move(wallTile));
+	*/
+	
+	auto id = 0u;
+	for (int i = 0; i < tilemapSize.x; ++i)
+		for (int j = 0; j < tilemapSize.y; ++j)
+		{
+			std::unique_ptr<Tile> floorTile(new Tile(Tile::Floor, mTextures, mFonts, id));	
+			auto tile = floorTile.get();
+			tile->setPosition(i * mTileSize, j * mTileSize);
+			mSceneLayers[Background]->attachChild(std::move(floorTile));
+			++id;
+		}
 
 	//TODO: generate random spawn position
 	mSpawnPosition = sf::Vector2f(mDungeonBounds.width / 2.f, mDungeonBounds.height / 2.f);
