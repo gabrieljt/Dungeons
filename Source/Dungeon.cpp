@@ -11,16 +11,15 @@
 #include <limits>
 
 
-Dungeon::Dungeon(sf::RenderTarget& outputTarget, FontHolder& fonts, SoundPlayer& sounds, const unsigned int level)
+Dungeon::Dungeon(sf::RenderTarget& outputTarget, FontHolder& fonts, SoundPlayer& sounds)
 : mTarget(outputTarget)
 , mSceneTexture()
-, mDungeonView(outputTarget.getDefaultView())
+, mView(outputTarget.getDefaultView())
 , mTextures() 
 , mFonts(fonts)
 , mSounds(sounds)
 , mSceneGraph()
 , mSceneLayers()
-, mLevel(level)
 , mTileSize(16u)
 , mDungeonBounds()
 , mSpawnPosition()
@@ -38,7 +37,6 @@ void Dungeon::update(sf::Time dt)
 	mPlayerCharacter->setVelocity(0.f, 0.f);
 	adaptViewPosition();
 
-	// Forward commands to scene graph, adapt velocity (scrolling, diagonal correction)
 	while (!mCommandQueue.isEmpty())
 		mSceneGraph.onCommand(mCommandQueue.pop(), dt);
 	adaptPlayerVelocity();
@@ -53,8 +51,8 @@ void Dungeon::update(sf::Time dt)
 
 void Dungeon::draw()
 {
-		mTarget.setView(mDungeonView);
-		mTarget.draw(mSceneGraph);
+	mTarget.setView(mView);
+	mTarget.draw(mSceneGraph);
 }
 
 CommandQueue& Dungeon::getCommandQueue()
@@ -75,29 +73,27 @@ void Dungeon::loadTextures()
 
 void Dungeon::setupView()
 {
-	sf::Vector2u visibleArea(mTileSize * 5u, mTileSize * 5u); //10x10 cells, each cell has 16x16 pixels
-	auto zoom = std::min(visibleArea.x, visibleArea.y) / std::min(mDungeonView.getSize().x, mDungeonView.getSize().y);	
-	mDungeonView.setCenter(mSpawnPosition);	
-	mDungeonView.zoom(zoom);
+	sf::Vector2u visibleArea(mTileSize * 5u, mTileSize * 5u); 
+	auto zoom = std::min(visibleArea.x, visibleArea.y) / std::min(mView.getSize().x, mView.getSize().y);	
+	mView.setCenter(mSpawnPosition);	
+	mView.zoom(zoom);
 }
 
 void Dungeon::adaptViewPosition()
 {
-    // Keep camera's position and view bounds inside the world bounds
     sf::Vector2f borderDistance = sf::Vector2f(getViewBounds().width / 2.f, getViewBounds().height / 2.f);
     
 	sf::Vector2f position = mPlayerCharacter->getPosition();
-    mDungeonView.setCenter(position);
+    mView.setCenter(position);
 	position.x = std::max(position.x, mDungeonBounds.left + borderDistance.x);
 	position.x = std::min(position.x, mDungeonBounds.left + mDungeonBounds.width - borderDistance.x);
 	position.y = std::max(position.y, mDungeonBounds.top + borderDistance.y);
 	position.y = std::min(position.y, mDungeonBounds.top + mDungeonBounds.height - borderDistance.y);
-	mDungeonView.setCenter(position);
+	mView.setCenter(position);
 }
 
 void Dungeon::adaptPlayerPosition()
 {
-	// Keep player's position inside the world bounds, at least borderDistance units from the border
 	const auto borderDistance = mTileSize / 2u - 1u;
 
 	sf::Vector2f position = mPlayerCharacter->getPosition();
@@ -122,8 +118,7 @@ bool matchesCategories(SceneNode::Pair& colliders, Category::Type type1, Categor
 	unsigned int category1 = colliders.first->getCategory();
 	unsigned int category2 = colliders.second->getCategory();
 
-	// Make sure first pair entry has category type1 and second has type2
-if (type1 & category1 && type2 & category2)
+	if (type1 & category1 && type2 & category2)
 	{
 		return true;
 	}
@@ -216,5 +211,5 @@ void Dungeon::buildScene()
 
 sf::FloatRect Dungeon::getViewBounds() const
 {
-	return sf::FloatRect(mDungeonView.getCenter() - mDungeonView.getSize() / 2.f, mDungeonView.getSize());
+	return sf::FloatRect(mView.getCenter() - mView.getSize() / 2.f, mView.getSize());
 }

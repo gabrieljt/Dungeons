@@ -24,16 +24,8 @@ Character::Character(Type type, const TextureHolder& textures, const FontHolder&
 , mSprite(textures.get(Table[type].texture), Table[type].textureRect)
 , mTravelledDistance(0.f)
 , mDirectionIndex(0)
-, mHealthDisplay(nullptr)
 {
 	centerOrigin(mSprite);
-
-	std::unique_ptr<TextNode> healthDisplay(new TextNode(fonts, ""
-		, (unsigned int) std::min(getBoundingRect().width, getBoundingRect().height) / 2.f));
-	mHealthDisplay = healthDisplay.get();
-	attachChild(std::move(healthDisplay));
-
-	updateTexts();
 }
 
 void Character::drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const
@@ -43,7 +35,6 @@ void Character::drawCurrent(sf::RenderTarget& target, sf::RenderStates states) c
 
 void Character::updateCurrent(sf::Time dt, CommandQueue& commands)
 {
-	updateTexts();
 	updateIdleAnimation();
 
 	if (isDestroyed())
@@ -124,16 +115,6 @@ void Character::updateMovementPattern(sf::Time dt)
 
 		mTravelledDistance += getMaxSpeed() * dt.asSeconds();
 	}
-}
-
-void Character::updateTexts()
-{
-	if (isDestroyed())
-		mHealthDisplay->setString("");
-	else
-		mHealthDisplay->setString(toString(getHitpoints()) + " HP");
-	mHealthDisplay->setPosition(0.f, 15.f);
-	mHealthDisplay->setRotation(-getRotation());
 }
 
 void Character::updateIdleAnimation()

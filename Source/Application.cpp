@@ -8,7 +8,7 @@
 const sf::Time Application::TimePerFrame = sf::seconds(1.f/60.f);
 
 Application::Application()
-: mWindow(sf::VideoMode(1024, 768), "Dungeons", sf::Style::Close)
+: mWindow(sf::VideoMode(1920, 1080), "Dungeons", sf::Style::Fullscreen)
 , mTextures()
 , mFonts()
 , mPlayer()

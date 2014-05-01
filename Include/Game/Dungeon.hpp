@@ -28,7 +28,7 @@ namespace sf
 class Dungeon : private sf::NonCopyable
 {
 	public:
-											Dungeon(sf::RenderTarget& outputTarget, FontHolder& fonts, SoundPlayer& sounds, const unsigned int level);
+											Dungeon(sf::RenderTarget& outputTarget, FontHolder& fonts, SoundPlayer& sounds);
 		void								update(sf::Time dt);
 		void								draw();
 		
@@ -62,7 +62,7 @@ class Dungeon : private sf::NonCopyable
 	private:
 		sf::RenderTarget&					mTarget;
 		sf::RenderTexture					mSceneTexture;
-		sf::View							mDungeonView;
+		sf::View							mView;
 		TextureHolder						mTextures;
 		FontHolder&							mFonts;
 		SoundPlayer&						mSounds;
@@ -71,7 +71,6 @@ class Dungeon : private sf::NonCopyable
 		std::array<SceneNode*, LayerCount>	mSceneLayers;
 		CommandQueue						mCommandQueue;
 
-		const unsigned int 					mLevel;
 		const unsigned int 					mTileSize;
 		sf::FloatRect						mDungeonBounds;
 		sf::Vector2f						mSpawnPosition;		

@@ -6,7 +6,7 @@
 
 GameState::GameState(StateStack& stack, Context context)
 : State(stack, context)
-, mDungeon(*context.window, *context.fonts, *context.sounds, 0u)
+, mDungeon(*context.window, *context.fonts, *context.sounds)
 , mPlayer(*context.player)
 {
 }

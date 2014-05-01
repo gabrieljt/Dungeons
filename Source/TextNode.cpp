@@ -4,10 +4,10 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 
     
-TextNode::TextNode(const FontHolder& fonts, const std::string& text, unsigned int characterSize)
+TextNode::TextNode(const FontHolder& fonts, const std::string& text)
 {
 	mText.setFont(fonts.get(Fonts::Main));
-	mText.setCharacterSize(characterSize);
+	mText.setCharacterSize(20u);
 	setString(text);
 }
 
