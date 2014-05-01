@@ -17,7 +17,7 @@ namespace
 	const std::vector<TileData> Table 	= initializeTileData();
 }
 
-const unsigned int Tile::Size 		= 16u;
+const unsigned int Tile::Size = 16u;
 
 Tile::Tile(Type type, const TextureHolder& textures, const FontHolder& fonts, const TileID id)
 : Entity(Table[type].hitpoints)
@@ -25,13 +25,14 @@ Tile::Tile(Type type, const TextureHolder& textures, const FontHolder& fonts, co
 , mSprite(textures.get(Table[type].texture), Table[type].textureRect)
 , mId(id)
 , mIdDisplay()
-{	
-	/*
-	std::unique_ptr<TextNode> idDisplay(new TextNode(fonts, ""));
-	mIdDisplay = idDisplay.get();
-	attachChild(std::move(idDisplay));
-	updateTexts();
-	*/
+{		
+	if (Utility::Debug)
+	{
+		std::unique_ptr<TextNode> idDisplay(new TextNode(fonts, ""));
+		mIdDisplay = idDisplay.get();
+		attachChild(std::move(idDisplay));
+		updateTexts();	
+	}
 }
 
 void Tile::drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const
@@ -85,7 +86,7 @@ bool Tile::isWalkable() const
 void Tile::updateTexts()
 {	
 	mIdDisplay->setString(toString(mId.first) + toString(mId.second));
-	mIdDisplay->setPosition(Size / 2, Size / 2);
+	mIdDisplay->setPosition(Size + Size / 2.5, Size);
 	mIdDisplay->setRotation(-getRotation());
-	mIdDisplay->setCharacterSize(7u);
+	mIdDisplay->setCharacterSize(5u);
 }

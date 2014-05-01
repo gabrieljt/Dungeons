@@ -10,6 +10,8 @@
 #include <cassert>
 
 
+const bool Utility::Debug = false;
+
 namespace
 {
 	std::default_random_engine createRandomEngine()

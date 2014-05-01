@@ -13,6 +13,11 @@ namespace sf
 	class Text;
 }
 
+namespace Utility
+{
+	extern const bool Debug;
+}
+
 class Animation;
 
 // Since std::to_string doesn't work on MinGW we have to implement
