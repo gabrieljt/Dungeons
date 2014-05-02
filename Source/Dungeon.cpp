@@ -142,27 +142,37 @@ void Dungeon::handleCollisions()
 		{
 			auto& character 		= static_cast<Character&>(*pair.first);
 			auto& tile 				= static_cast<Tile&>(*pair.second);
-			auto characterPosition 	= character.getPosition();
+			auto characterBounds 	= character.getBoundingRect();
+			auto characterPosition 	= character.getPosition();			
+			auto tileBounds 		= tile.getBoundingRect();
 			auto tilePosition 		= tile.getPosition();
 
-			auto dx 				= std::abs(characterPosition.x - tilePosition.x);
-			auto dy 				= std::abs(characterPosition.y - tilePosition.y);
-			auto penetrationAxis 	= std::max(dx, dy);
-			auto penetratingX 		= penetrationAxis > dy;
-			std::cout << dx << " " << dy << " " << penetrationAxis << " " << penetratingX << std::endl;
-			if (penetratingX)
+			// check X axis penetration through left or right
+			auto penetrationX		= std::min(std::abs(tileBounds.left + tileBounds.width - characterBounds.left) 
+												, std::abs(characterBounds.left + characterBounds.width - tileBounds.left));
+			// check X axis penetration through up or down
+			auto penetrationY		= std::min(std::abs(tileBounds.top + tileBounds.height - characterBounds.top)
+												, std::abs(characterBounds.top + characterBounds.height - tileBounds.top));
+			auto penetratingAxis 	= std::min(penetrationX, penetrationY);
+			auto collideX 			= penetratingAxis < penetrationY;
+
+			if (collideX)
 			{
+				// Colliding Left
 				if (characterPosition.x > tilePosition.x)
-					character.setPosition(characterPosition.x + Tile::Size - dx, characterPosition.y);
+					character.setPosition(characterPosition.x + penetrationX, characterPosition.y);
+				// Colliding Right
 				else
-					character.setPosition(characterPosition.x - Tile::Size + dx, characterPosition.y);
+					character.setPosition(characterPosition.x - penetrationX, characterPosition.y);
 			}
 			else
 			{
+				// Colliding Top 
 				if (characterPosition.y > tilePosition.y)
-					character.setPosition(characterPosition.x, characterPosition.y + Tile::Size - dy);
+					character.setPosition(characterPosition.x, characterPosition.y + penetrationY);
+				// Colliding Bottom
 				else
-					character.setPosition(characterPosition.x, characterPosition.y - Tile::Size + dy);
+					character.setPosition(characterPosition.x, characterPosition.y - penetrationY);
 			}
 		}		
 	}	
@@ -191,7 +201,7 @@ void Dungeon::buildScene()
 	}
 
 	// TODO: generate "random" dungeon (pixels) and map (tiles) bounds
-	const auto tilemapSize = 10u; // 10x10 cells
+	const auto tilemapSize = 11u; // 10x10 cells
 	mDungeonBounds = sf::FloatRect(0.f, 0.f, Tile::Size * tilemapSize, Tile::Size * tilemapSize); //160x160 pixels
 	
 	// TODO: generate LEVEL!!!!
