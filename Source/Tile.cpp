@@ -56,9 +56,9 @@ unsigned int Tile::getCategory() const
 	switch (mType)
 	{
 		case Floor:
-			return Category::FloorTile;
+			return Category::WalkableTile;
 		case Wall:
-			return Category::WallTile;
+			return Category::UnwalkableTile;
 		default:
 			return Category::Tile;
 	}

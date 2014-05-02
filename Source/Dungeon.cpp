@@ -8,6 +8,8 @@
 #include <algorithm>
 #include <cmath>
 #include <limits>
+#include <map>
+#include <iostream>
 
 
 Dungeon::Dungeon(sf::RenderTarget& outputTarget, FontHolder& fonts, SoundPlayer& sounds)
@@ -32,7 +34,6 @@ Dungeon::Dungeon(sf::RenderTarget& outputTarget, FontHolder& fonts, SoundPlayer&
 
 void Dungeon::update(sf::Time dt)
 {	
-	mPlayerCharacter->setVelocity(0.f, 0.f);
 	adaptViewPosition();
 
 	while (!mCommandQueue.isEmpty())
@@ -45,6 +46,7 @@ void Dungeon::update(sf::Time dt)
 
 	mSceneGraph.update(dt, mCommandQueue);
 	adaptPlayerPosition();
+	mPlayerCharacter->setVelocity(0.f, 0.f);	
 }
 
 void Dungeon::draw()
@@ -133,19 +135,37 @@ bool matchesCategories(SceneNode::Pair& colliders, Category::Type type1, Categor
 void Dungeon::handleCollisions()
 {
 	std::set<SceneNode::Pair> collisionPairs;
-	mSceneGraph.checkSceneCollision(mSceneGraph, collisionPairs);
-
+	mSceneGraph.checkSceneCollision(mSceneGraph, collisionPairs);	
 	FOREACH(SceneNode::Pair pair, collisionPairs)
 	{		
-		if (matchesCategories(pair, Category::Character, Category::WallTile))
+		if (matchesCategories(pair, Category::Character, Category::UnwalkableTile))
 		{
-			auto& player = static_cast<Character&>(*pair.first);
-			auto& wall = static_cast<Tile&>(*pair.second);
-			// TODO: collision!
-			player.damage(wall.getHitpoints());
-			wall.destroy();
+			auto& character 		= static_cast<Character&>(*pair.first);
+			auto& tile 				= static_cast<Tile&>(*pair.second);
+			auto characterPosition 	= character.getPosition();
+			auto tilePosition 		= tile.getPosition();
+
+			auto dx 				= std::abs(characterPosition.x - tilePosition.x);
+			auto dy 				= std::abs(characterPosition.y - tilePosition.y);
+			auto penetrationAxis 	= std::max(dx, dy);
+			auto penetratingX 		= penetrationAxis > dy;
+			std::cout << dx << " " << dy << " " << penetrationAxis << " " << penetratingX << std::endl;
+			if (penetratingX)
+			{
+				if (characterPosition.x > tilePosition.x)
+					character.setPosition(characterPosition.x + Tile::Size - dx, characterPosition.y);
+				else
+					character.setPosition(characterPosition.x - Tile::Size + dx, characterPosition.y);
+			}
+			else
+			{
+				if (characterPosition.y > tilePosition.y)
+					character.setPosition(characterPosition.x, characterPosition.y + Tile::Size - dy);
+				else
+					character.setPosition(characterPosition.x, characterPosition.y - Tile::Size + dy);
+			}
 		}		
-	}
+	}	
 }
 
 void Dungeon::updateSounds()
@@ -172,31 +192,35 @@ void Dungeon::buildScene()
 
 	// TODO: generate "random" dungeon (pixels) and map (tiles) bounds
 	const auto tilemapSize = 10u; // 10x10 cells
-	mDungeonBounds = sf::FloatRect(0.f, 0.f, Tile::Size * tilemapSize, Tile::Size * tilemapSize); //1600x1600 pixels
+	mDungeonBounds = sf::FloatRect(0.f, 0.f, Tile::Size * tilemapSize, Tile::Size * tilemapSize); //160x160 pixels
 	
 	// TODO: generate LEVEL!!!!
 	for (auto x = 1u; x < tilemapSize - 1u; ++x)
 		for (auto y = 1u; y < tilemapSize - 1u; ++y)
 		{
+			if (x != 3u || y != 3u)
+			{
 				Tile::TileID id(x, y);
 				addTile(id, Tile::Type::Floor);
+			}
 		}
 
 	for (auto i = 0u; i < tilemapSize; ++i)
 	{
-		Tile::TileID firstRow(i, 0);
+		Tile::TileID firstRow(i, 0u);
 		Tile::TileID lastRow(i, tilemapSize - 1);
-		Tile::TileID firstColumn(0, i);
+		Tile::TileID firstColumn(0u, i);
 		Tile::TileID lastColumn(tilemapSize - 1, i);
 		addTile(firstRow, Tile::Type::Wall);
 		addTile(lastRow, Tile::Type::Wall);
 		addTile(firstColumn, Tile::Type::Wall);
 		addTile(lastColumn, Tile::Type::Wall);
 	}
+	addTile(Tile::TileID(3u, 3u), Tile::Type::Wall);
 
 	//TODO: generate random spawn position (get cell?)
 	Tile::TileID tileId(5u, 5u);
-	mSpawnPosition = sf::Vector2f(tileId.first * Tile::Size, tileId.second * Tile::Size);
+	mSpawnPosition = sf::Vector2f(tileId.first * Tile::Size + Tile::Size / 2, tileId.second * Tile::Size + Tile::Size / 2);
 
 	// Add player's character
 	std::unique_ptr<Character> player(new Character(Character::Player, mTextures, mFonts));
