@@ -10,7 +10,7 @@
 #include <cassert>
 
 
-const bool Utility::Debug = false;
+const bool Utility::Debug = true;
 
 namespace
 {

@@ -27,13 +27,13 @@ Tile::Tile(Type type, const TextureHolder& textures, const FontHolder& fonts, co
 , mIdDisplay()
 {
 	centerOrigin(mSprite);
-	if (Utility::Debug)
+	/*if (Utility::Debug)
 	{
 		std::unique_ptr<TextNode> idDisplay(new TextNode(fonts, ""));
 		mIdDisplay = idDisplay.get();
 		attachChild(std::move(idDisplay));
 		updateTexts();	
-	}
+	}*/
 }
 
 void Tile::drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const
