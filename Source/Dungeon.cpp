@@ -153,10 +153,11 @@ void Dungeon::handleCollisions()
 			// check X axis penetration through up or down
 			auto penetrationY		= std::min(std::abs(tileBounds.top + tileBounds.height - characterBounds.top)
 												, std::abs(characterBounds.top + characterBounds.height - tileBounds.top));
+			// the least penetrating axis
 			auto penetratingAxis 	= std::min(penetrationX, penetrationY);
-			auto collideX 			= penetratingAxis < penetrationY;
+			auto penetratingX 		= penetratingAxis < penetrationY;
 
-			if (collideX)
+			if (penetratingX)
 			{
 				// Colliding Left
 				if (characterPosition.x > tilePosition.x)
@@ -173,17 +174,15 @@ void Dungeon::handleCollisions()
 				// Colliding Bottom
 				else
 					character.setPosition(characterPosition.x, characterPosition.y - penetrationY);
-			}
+			}			
 		}		
 	}	
 }
 
 void Dungeon::updateSounds()
 {
-	// Set listener's position to player position
 	mSounds.setListenerPosition(mPlayerCharacter->getWorldPosition());
 
-	// Remove unused sounds
 	mSounds.removeStoppedSounds();
 }
 
@@ -201,7 +200,7 @@ void Dungeon::buildScene()
 	}
 
 	// TODO: generate "random" dungeon (pixels) and map (tiles) bounds
-	const auto tilemapSize = 11u; // 10x10 cells
+	const auto tilemapSize = 10u; // 10x10 cells
 	mDungeonBounds = sf::FloatRect(0.f, 0.f, Tile::Size * tilemapSize, Tile::Size * tilemapSize); //160x160 pixels
 	
 	// TODO: generate LEVEL!!!!
@@ -214,7 +213,7 @@ void Dungeon::buildScene()
 				addTile(id, Tile::Type::Floor);
 			}
 		}
-
+	addTile(Tile::TileID(3u, 3u), Tile::Type::Wall);
 	for (auto i = 0u; i < tilemapSize; ++i)
 	{
 		Tile::TileID firstRow(i, 0u);
@@ -226,11 +225,10 @@ void Dungeon::buildScene()
 		addTile(firstColumn, Tile::Type::Wall);
 		addTile(lastColumn, Tile::Type::Wall);
 	}
-	addTile(Tile::TileID(3u, 3u), Tile::Type::Wall);
 
 	//TODO: generate random spawn position (get cell?)
 	Tile::TileID tileId(5u, 5u);
-	mSpawnPosition = sf::Vector2f(tileId.first * Tile::Size + Tile::Size / 2, tileId.second * Tile::Size + Tile::Size / 2);
+	mSpawnPosition = sf::Vector2f(tileId.first * Tile::Size, tileId.second * Tile::Size);
 
 	// Add player's character
 	std::unique_ptr<Character> player(new Character(Character::Player, mTextures, mFonts));
@@ -241,10 +239,10 @@ void Dungeon::buildScene()
 
 void Dungeon::addTile(Tile::TileID id, Tile::Type type) 
 {
-	std::unique_ptr<Tile> tilePtr(new Tile(type, mTextures, mFonts, id));	
+	std::unique_ptr<Tile> tilePtr(new Tile(type, mTextures, id));	
 	auto tile = tilePtr.get();
 	// Tile has centered origin	
-	tile->setPosition(id.first * Tile::Size + Tile::Size / 2, id.second * Tile::Size + Tile::Size / 2);
+	tile->setPosition(id.first * Tile::Size, id.second * Tile::Size);
 	mSceneLayers[Main]->attachChild(std::move(tilePtr));
 }
 

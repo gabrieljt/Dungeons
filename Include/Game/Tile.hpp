@@ -1,15 +1,15 @@
 #ifndef GAME_TILE_HPP
 #define GAME_TILE_HPP
 
-#include <Game/Entity.hpp>
 #include <Game/Command.hpp>
 #include <Game/ResourceIdentifiers.hpp>
+#include <Game/SpriteNode.hpp>
 #include <Game/TextNode.hpp>
 
 #include <SFML/Graphics/Sprite.hpp>
 
 
-class Tile : public Entity
+class Tile : public SpriteNode
 {
 	public:
 		typedef std::pair<unsigned int, unsigned int> TileID;
@@ -26,25 +26,16 @@ class Tile : public Entity
 
 	
 	public:
-								Tile(Type type, const TextureHolder& textures, const FontHolder& fonts, const TileID);
+								Tile(Type type, const TextureHolder& textures, const TileID);
 
 		virtual unsigned int	getCategory() const;
 		virtual sf::FloatRect	getBoundingRect() const;
-		virtual void			remove();
-		virtual bool 			isMarkedForRemoval() const;	
 
 		bool					isWalkable() const;
-		void					updateTexts();
-
-
-	private:
-		virtual void			drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const;
-		virtual void 			updateCurrent(sf::Time dt, CommandQueue& commands);
 
 
 	private:
 		Type					mType;
-		sf::Sprite				mSprite;		
 
 		const TileID			mId;		
 		TextNode* 				mIdDisplay;

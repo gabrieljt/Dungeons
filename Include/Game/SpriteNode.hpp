@@ -13,11 +13,11 @@ class SpriteNode : public SceneNode
 							SpriteNode(const sf::Texture& texture, const sf::IntRect& textureRect);
 
 
-	private:
+	protected:
 		virtual void		drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const;
 
 
-	private:
+	protected:
 		sf::Sprite			mSprite;
 };
 

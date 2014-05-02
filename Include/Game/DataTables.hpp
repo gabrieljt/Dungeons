@@ -37,7 +37,6 @@ struct CharacterData
 
 struct TileData
 {
-	int 							hitpoints;
 	Textures::ID					texture;
 	sf::IntRect						textureRect;	
 };

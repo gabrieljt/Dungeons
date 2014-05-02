@@ -57,7 +57,6 @@ set(SOURCE
 	${PROJECT_SOURCE_DIR}/Source/StateStack.cpp
 	${PROJECT_SOURCE_DIR}/Source/TextNode.cpp
 	${PROJECT_SOURCE_DIR}/Source/Tile.cpp
-	${PROJECT_SOURCE_DIR}/Source/Tilemap.cpp
 	${PROJECT_SOURCE_DIR}/Source/Utility.cpp
 )
 
@@ -91,7 +90,6 @@ set(HEADERS
 	${PROJECT_SOURCE_DIR}/Include/Game/StateStack.hpp
 	${PROJECT_SOURCE_DIR}/Include/Game/TextNode.hpp
 	${PROJECT_SOURCE_DIR}/Include/Game/Tile.hpp
-	${PROJECT_SOURCE_DIR}/Include/Game/Tilemap.hpp
 	${PROJECT_SOURCE_DIR}/Include/Game/Utility.hpp
 )
 
