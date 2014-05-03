@@ -11,7 +11,7 @@
 Tilemap::Tilemap(const TextureHolder& textures)
 : SceneNode(Category::Tilemap)
 , mTileset(textures.get(Textures::Tiles))
-, mSize(1000u, 1000u)
+, mSize(100u, 100u)
 , mBounds(0.f, 0.f, mSize.x * Tile::Size, mSize.y * Tile::Size)
 , mImage()
 , mMap()

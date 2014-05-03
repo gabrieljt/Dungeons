@@ -75,7 +75,7 @@ void Dungeon::loadTextures()
 
 void Dungeon::setupView()
 {
-	auto visibleArea = Tile::Size * 1000u; // i x i cells
+	auto visibleArea = Tile::Size * 10u; // i x i cells
 	auto zoom = visibleArea / std::min(mView.getSize().x, mView.getSize().y);	
 	mView.setCenter(mSpawnPosition);	
 	mView.zoom(zoom);
@@ -134,6 +134,43 @@ bool matchesCategories(SceneNode::Pair& colliders, Category::Type type1, Categor
 	}
 }
 
+void handleTileCollision(Character& character, Tilemap::TilePtr tile)
+{
+	auto characterBounds 	= character.getBoundingRect();
+	auto characterPosition 	= character.getPosition();			
+	auto tileBounds 		= tile->getBoundingRect();
+	// Tile does not have centered origin
+	auto tilePosition 		= tile->getPosition() + sf::Vector2f(Tile::Size / 2, Tile::Size / 2);
+	// check X axis penetration through left or right
+	auto penetrationX		= std::min(std::abs(tileBounds.left + tileBounds.width - characterBounds.left) 
+										, std::abs(characterBounds.left + characterBounds.width - tileBounds.left));
+	// check X axis penetration through up or down
+	auto penetrationY		= std::min(std::abs(tileBounds.top + tileBounds.height - characterBounds.top)
+										, std::abs(characterBounds.top + characterBounds.height - tileBounds.top));
+	// the least penetrating axis
+	auto penetratingAxis 	= std::min(penetrationX, penetrationY);
+	auto penetratingX 		= penetratingAxis < penetrationY;
+
+	if (penetratingX)
+	{
+		// Colliding Left
+		if (characterPosition.x > tilePosition.x)
+			character.setPosition(characterPosition.x + penetrationX, characterPosition.y);
+		// Colliding Right
+		else
+			character.setPosition(characterPosition.x - penetrationX, characterPosition.y);
+	}
+	else
+	{
+		// Colliding Top 
+		if (characterPosition.y > tilePosition.y)
+			character.setPosition(characterPosition.x, characterPosition.y + penetrationY);
+		// Colliding Bottom
+		else
+			character.setPosition(characterPosition.x, characterPosition.y - penetrationY);
+	}			
+}
+
 void Dungeon::handleCollisions()
 {
 	std::set<SceneNode::Pair> collisionPairs;
@@ -143,95 +180,17 @@ void Dungeon::handleCollisions()
 		if (matchesCategories(pair, Category::Character, Category::Tilemap))
 		{
 			auto& character = static_cast<Character&>(*pair.first);
-			auto tile = mTilemap->getTile(character.getPosition());
-			if (!tile->isWalkable() && tile->getBoundingRect().intersects(character.getBoundingRect()))
-			{
-				auto tileID = tile->getID();
-				std::cout << "I'm near here: " << tileID.first << " " << tileID.second << " " << tile.use_count() <<std::endl;
-				auto characterBounds 	= character.getBoundingRect();
-				auto characterPosition 	= character.getPosition();			
-				auto tileBounds 		= tile->getBoundingRect();
-				auto tilePosition 		= tile->getPosition() + sf::Vector2f(Tile::Size / 2, Tile::Size / 2);
-				std::cout << tilePosition.x << " " << tilePosition.y << std::endl;
-				// check X axis penetration through left or right
-				auto penetrationX		= std::min(std::abs(tileBounds.left + tileBounds.width - characterBounds.left) 
-													, std::abs(characterBounds.left + characterBounds.width - tileBounds.left));
-				// check X axis penetration through up or down
-				auto penetrationY		= std::min(std::abs(tileBounds.top + tileBounds.height - characterBounds.top)
-													, std::abs(characterBounds.top + characterBounds.height - tileBounds.top));
-				// the least penetrating axis
-				auto penetratingAxis 	= std::min(penetrationX, penetrationY);
-				auto penetratingX 		= penetratingAxis < penetrationY;
-
-				if (penetratingX)
-				{
-					// Colliding Left
-					if (characterPosition.x > tilePosition.x)
-						character.setPosition(characterPosition.x + penetrationX, characterPosition.y);
-					// Colliding Right
-					else
-						character.setPosition(characterPosition.x - penetrationX, characterPosition.y);
-				}
-				else
-				{
-					// Colliding Top 
-					if (characterPosition.y > tilePosition.y)
-						character.setPosition(characterPosition.x, characterPosition.y + penetrationY);
-					// Colliding Bottom
-					else
-						character.setPosition(characterPosition.x, characterPosition.y - penetrationY);
-				}			
-
-			}
-			else
-			{
-				std::vector<Tilemap::TilePtr> neighbours;
+			auto tile 		= mTilemap->getTile(character.getPosition());
+			std::vector<Tilemap::TilePtr> neighbours;
+			neighbours.push_back(mTilemap->getTile(character.getPosition()));
 			mTilemap->getNeighbours(tile->getID(), neighbours);
-			for (auto tile : neighbours)
+			FOREACH (auto tile, neighbours)
 			{
-			if (!tile->isWalkable() && tile->getBoundingRect().intersects(character.getBoundingRect()))
-			{
-				auto tileID = tile->getID();
-				std::cout << "I'm near here: " << tileID.first << " " << tileID.second << " " << tile.use_count() <<std::endl;
-				auto characterBounds 	= character.getBoundingRect();
-				auto characterPosition 	= character.getPosition();			
-				auto tileBounds 		= tile->getBoundingRect();
-				auto tilePosition 		= tile->getPosition() + sf::Vector2f(Tile::Size / 2, Tile::Size / 2);
-				std::cout << tilePosition.x << " " << tilePosition.y << std::endl;
-				// check X axis penetration through left or right
-				auto penetrationX		= std::min(std::abs(tileBounds.left + tileBounds.width - characterBounds.left) 
-													, std::abs(characterBounds.left + characterBounds.width - tileBounds.left));
-				// check X axis penetration through up or down
-				auto penetrationY		= std::min(std::abs(tileBounds.top + tileBounds.height - characterBounds.top)
-													, std::abs(characterBounds.top + characterBounds.height - tileBounds.top));
-				// the least penetrating axis
-				auto penetratingAxis 	= std::min(penetrationX, penetrationY);
-				auto penetratingX 		= penetratingAxis < penetrationY;
-
-				if (penetratingX)
+				if (!tile->isWalkable() && tile->getBoundingRect().intersects(character.getBoundingRect()))
 				{
-					// Colliding Left
-					if (characterPosition.x > tilePosition.x)
-						character.setPosition(characterPosition.x + penetrationX, characterPosition.y);
-					// Colliding Right
-					else
-						character.setPosition(characterPosition.x - penetrationX, characterPosition.y);
+					handleTileCollision(character, tile);
 				}
-				else
-				{
-					// Colliding Top 
-					if (characterPosition.y > tilePosition.y)
-						character.setPosition(characterPosition.x, characterPosition.y + penetrationY);
-					// Colliding Bottom
-					else
-						character.setPosition(characterPosition.x, characterPosition.y - penetrationY);
-				}			
 			}
-			}
-
-			}
-
-			
 		}		
 	}	
 }
