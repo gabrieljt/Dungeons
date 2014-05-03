@@ -1,12 +1,15 @@
 #ifndef GAME_TILE_HPP
 #define GAME_TILE_HPP
 
-#include <Game/SpriteNode.hpp>
+#include <Game/SceneNode.hpp>
 #include <Game/ResourceIdentifiers.hpp>
 #include <Game/TextNode.hpp>
 
+#include <SFML/System/Vector2.hpp>
+#include <SFML/Graphics/Rect.hpp>
 
-class Tile : public SpriteNode
+
+class Tile : public SceneNode
 {
 	public:
 		typedef std::pair<unsigned int, unsigned int> ID;
@@ -23,7 +26,7 @@ class Tile : public SpriteNode
 
 	
 	public:
-								Tile(const ID id, Type type, const TextureHolder& textures);
+								Tile(const ID id, Type type);
 
 		virtual unsigned int	getCategory() const;
 		virtual sf::FloatRect	getBoundingRect() const;
@@ -31,10 +34,6 @@ class Tile : public SpriteNode
 		ID 						getID() const;
 		Type 					getType() const;
 		bool					isWalkable() const;
-
-
-	private:
-		virtual void			drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const;
 
 
 	private:

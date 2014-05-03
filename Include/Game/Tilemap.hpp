@@ -17,7 +17,7 @@
 class Tilemap : public SceneNode
 {
 	public:
-		typedef std::unique_ptr<Tile> TilePtr;
+		typedef std::shared_ptr<Tile> TilePtr;
 
 
 	public:
@@ -25,7 +25,10 @@ class Tilemap : public SceneNode
 
 		virtual sf::FloatRect		getBoundingRect() const;
 
-		void						addTile(Tile::ID, Tile::Type type, const TextureHolder& textures);
+		void						addTile(Tile::ID, Tile::Type type);
+		TilePtr 					getTile(Tile::ID id);
+		TilePtr 					getTile(sf::Vector2f position);
+		TilePtr 					getTile(float x, float y);
 
 
 	private:

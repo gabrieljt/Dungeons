@@ -23,20 +23,20 @@ Tilemap::Tilemap(const TextureHolder& textures)
 			if (x != 3u || y != 3u)
 			{
 				Tile::ID id(x, y);
-				addTile(id, Tile::Type::Floor, textures);
+				addTile(id, Tile::Type::Floor);
 			}
 		}
-	addTile(Tile::ID(3u, 3u), Tile::Type::Wall, textures);
+	addTile(Tile::ID(3u, 3u), Tile::Type::Wall);
 	for (auto i = 0u; i < mSize.x; ++i)
 	{
 		Tile::ID firstRow(i, 0u);
 		Tile::ID lastRow(i, mSize.x - 1u);
 		Tile::ID firstColumn(0u, i);
 		Tile::ID lastColumn(mSize.y - 1u, i);
-		addTile(firstRow, Tile::Type::Wall, textures);
-		addTile(lastRow, Tile::Type::Wall, textures);
-		addTile(firstColumn, Tile::Type::Wall, textures);
-		addTile(lastColumn, Tile::Type::Wall, textures);
+		addTile(firstRow, Tile::Type::Wall);
+		addTile(lastRow, Tile::Type::Wall);
+		addTile(firstColumn, Tile::Type::Wall);
+		addTile(lastColumn, Tile::Type::Wall);
 	}
 
 	mImage.setPrimitiveType(sf::Quads);
@@ -44,8 +44,7 @@ Tilemap::Tilemap(const TextureHolder& textures)
 	for (auto x = 0u; x < mSize.x; ++x)
 		for (auto y = 0u; y < mSize.y; ++y)
 		{
-			auto tilePtr = std::move(mMap[Tile::ID(x,y)]);
-			auto tile = tilePtr.get();
+			auto tile = mMap[Tile::ID(x,y)];
 			auto type = tile->getType();
 			std::cout << tile->getID().first << " " << tile->getID().second << " || " << tile->getPosition().x << " " << tile->getPosition().y << " || " << type << std::endl;
 
@@ -70,13 +69,29 @@ Tilemap::Tilemap(const TextureHolder& textures)
 		}
 }
 
-void Tilemap::addTile(Tile::ID id, Tile::Type type, const TextureHolder& textures)
+void Tilemap::addTile(Tile::ID id, Tile::Type type)
 {
 	// TODO: assert inserted
-	TilePtr tilePtr(new Tile(id, type, textures));
-	auto tile = tilePtr.get();
+	TilePtr tile(new Tile(id, type));
 	tile->setPosition(id.first * Tile::Size, id.second * Tile::Size);
-	mMap[id] = std::move(tilePtr);
+	mMap[id] = tile;
+}
+
+Tilemap::TilePtr Tilemap::getTile(Tile::ID id)
+{
+	return mMap[id];
+}
+
+Tilemap::TilePtr Tilemap::getTile(sf::Vector2f position)
+{
+	Tile::ID id(position.x / Tile::Size, position.y / Tile::Size);
+	return mMap[id];
+}
+
+Tilemap::TilePtr Tilemap::getTile(float x, float y)
+{
+	Tile::ID id(x / Tile::Size, y / Tile::Size);
+	return mMap[id];
 }
 
 sf::FloatRect Tilemap::getBoundingRect() const

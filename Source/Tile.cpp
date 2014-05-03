@@ -16,9 +16,8 @@ namespace
 
 const unsigned int Tile::Size = 16u;
 
-Tile::Tile(const ID id, Type type, const TextureHolder& textures)
-: SpriteNode(textures.get(Table[type].texture), Table[type].textureRect)
-, mId(id)
+Tile::Tile(const ID id, Type type)
+: mId(id)
 , mType(type)
 {	
 }
@@ -38,7 +37,7 @@ unsigned int Tile::getCategory() const
 
 sf::FloatRect Tile::getBoundingRect() const
 {
-	return getWorldTransform().transformRect(mSprite.getGlobalBounds());
+	return sf::FloatRect(mId.first * Tile::Size, mId.second * Tile::Size, Tile::Size, Tile::Size);
 }
 
 Tile::ID Tile::getID() const
@@ -54,9 +53,4 @@ Tile::Type Tile::getType() const
 bool Tile::isWalkable() const
 {
 	return getCategory() == Category::WalkableTile;
-}
-
-void Tile::drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const
-{
-	// Tilemap draws it
 }

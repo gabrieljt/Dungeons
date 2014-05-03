@@ -142,46 +142,46 @@ void Dungeon::handleCollisions()
 		if (matchesCategories(pair, Category::Character, Category::Tilemap))
 		{
 			auto& character = static_cast<Character&>(*pair.first);
-			std::cout << "I'm here: " << character.getPosition().x << " " << character.getPosition().y << std::endl;
-		}
+			auto tile = mTilemap->getTile(character.getPosition());
 
-		if (matchesCategories(pair, Category::Character, Category::UnwalkableTile))
-		{
-			auto& character 		= static_cast<Character&>(*pair.first);
-			auto& tile 				= static_cast<Tile&>(*pair.second);
-			auto characterBounds 	= character.getBoundingRect();
-			auto characterPosition 	= character.getPosition();			
-			auto tileBounds 		= tile.getBoundingRect();
-			auto tilePosition 		= tile.getPosition();
-
-			// check X axis penetration through left or right
-			auto penetrationX		= std::min(std::abs(tileBounds.left + tileBounds.width - characterBounds.left) 
-												, std::abs(characterBounds.left + characterBounds.width - tileBounds.left));
-			// check X axis penetration through up or down
-			auto penetrationY		= std::min(std::abs(tileBounds.top + tileBounds.height - characterBounds.top)
-												, std::abs(characterBounds.top + characterBounds.height - tileBounds.top));
-			// the least penetrating axis
-			auto penetratingAxis 	= std::min(penetrationX, penetrationY);
-			auto penetratingX 		= penetratingAxis < penetrationY;
-
-			if (penetratingX)
+			if (!tile->isWalkable())
 			{
-				// Colliding Left
-				if (characterPosition.x > tilePosition.x)
-					character.setPosition(characterPosition.x + penetrationX, characterPosition.y);
-				// Colliding Right
+				auto tileID = tile->getID();
+				std::cout << "I'm here: " << tileID.first << " " << tileID.second << " " << tile.use_count() <<std::endl;
+				auto characterBounds 	= character.getBoundingRect();
+				auto characterPosition 	= character.getPosition();			
+				auto tileBounds 		= tile->getBoundingRect();
+				auto tilePosition 		= tile->getPosition() + sf::Vector2f(Tile::Size / 2, Tile::Size / 2);
+				std::cout << tilePosition.x << " " << tilePosition.y << std::endl;
+				// check X axis penetration through left or right
+				auto penetrationX		= std::min(std::abs(tileBounds.left + tileBounds.width - characterBounds.left) 
+													, std::abs(characterBounds.left + characterBounds.width - tileBounds.left));
+				// check X axis penetration through up or down
+				auto penetrationY		= std::min(std::abs(tileBounds.top + tileBounds.height - characterBounds.top)
+													, std::abs(characterBounds.top + characterBounds.height - tileBounds.top));
+				// the least penetrating axis
+				auto penetratingAxis 	= std::min(penetrationX, penetrationY);
+				auto penetratingX 		= penetratingAxis < penetrationY;
+
+				if (penetratingX)
+				{
+					// Colliding Left
+					if (characterPosition.x > tilePosition.x)
+						character.setPosition(characterPosition.x + penetrationX, characterPosition.y);
+					// Colliding Right
+					else
+						character.setPosition(characterPosition.x - penetrationX, characterPosition.y);
+				}
 				else
-					character.setPosition(characterPosition.x - penetrationX, characterPosition.y);
+				{
+					// Colliding Top 
+					if (characterPosition.y > tilePosition.y)
+						character.setPosition(characterPosition.x, characterPosition.y + penetrationY);
+					// Colliding Bottom
+					else
+						character.setPosition(characterPosition.x, characterPosition.y - penetrationY);
+				}			
 			}
-			else
-			{
-				// Colliding Top 
-				if (characterPosition.y > tilePosition.y)
-					character.setPosition(characterPosition.x, characterPosition.y + penetrationY);
-				// Colliding Bottom
-				else
-					character.setPosition(characterPosition.x, characterPosition.y - penetrationY);
-			}			
 		}		
 	}	
 }
@@ -205,18 +205,16 @@ void Dungeon::buildScene()
 
 		mSceneGraph.attachChild(std::move(layer));
 	}
-
+	// Build Map
 	std::unique_ptr<Tilemap> tilemap(new Tilemap(mTextures));
 	mTilemap = tilemap.get();
 	mTilemap->setPosition(0.f, 0.f);
 	mSceneLayers[Background]->attachChild(std::move(tilemap));
-	//TODO: generate random spawn position (get cell?)
-	Tile::ID tileId(5u, 5u);
-	mSpawnPosition = sf::Vector2f(tileId.first * Tile::Size, tileId.second * Tile::Size);
 
 	// Add player's character
 	std::unique_ptr<Character> player(new Character(Character::Player, mTextures, mFonts));
 	mPlayerCharacter = player.get();
+	mSpawnPosition = mTilemap->getTile(Tile::ID(5u, 5u))->getPosition();
 	mPlayerCharacter->setPosition(mSpawnPosition);
 	mSceneLayers[Main]->attachChild(std::move(player));
 }
