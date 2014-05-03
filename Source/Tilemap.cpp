@@ -5,39 +5,29 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
 
-#include <iostream>
+#include <cassert>
 
 
 Tilemap::Tilemap(const TextureHolder& textures)
 : SceneNode(Category::Tilemap)
 , mTileset(textures.get(Textures::Tiles))
-, mSize(100u, 100u)
+, mSize(200u, 200u)
 , mBounds(0.f, 0.f, mSize.x * Tile::Size, mSize.y * Tile::Size)
 , mImage()
 , mMap()
 {
 	// sample SQUARE map.
-	for (auto x = 1u; x < mSize.x - 1u; ++x)
-		for (auto y = 1u; y < mSize.y - 1u; ++y)
+	for (auto x = 0u; x < mSize.x; ++x)
+		for (auto y = 0u; y < mSize.y; ++y)
 		{
-			if (x != 10u || y != 10u)
-			{
-				Tile::ID id(x, y);
-				addTile(id, Tile::Type::Floor);
+			Tile::ID id(x, y);
+			if (x % 2 != 0 && y % 2 != 0)
+			{				
+				addTile(id, Tile::Type::Wall);
 			}
+			else
+				addTile(id, Tile::Type::Floor);
 		}
-	addTile(Tile::ID(10u, 10u), Tile::Type::Wall);
-	for (auto i = 0u; i < mSize.x; ++i)
-	{
-		Tile::ID firstRow(i, 0u);
-		Tile::ID lastRow(i, mSize.x - 1u);
-		Tile::ID firstColumn(0u, i);
-		Tile::ID lastColumn(mSize.y - 1u, i);
-		addTile(firstRow, Tile::Type::Wall);
-		addTile(lastRow, Tile::Type::Wall);
-		addTile(firstColumn, Tile::Type::Wall);
-		addTile(lastColumn, Tile::Type::Wall);
-	}
 
 	mImage.setPrimitiveType(sf::Quads);
     mImage.resize(mSize.x * mSize.y * 4);
@@ -46,7 +36,6 @@ Tilemap::Tilemap(const TextureHolder& textures)
 		{
 			auto tile = mMap[Tile::ID(x,y)];
 			auto type = tile->getType();
-			std::cout << tile->getID().first << " " << tile->getID().second << " || " << tile->getPosition().x << " " << tile->getPosition().y << " || " << type << std::endl;
 
 			// find its position in the tileset texture
 			auto tu = type % (mTileset.getSize().x / Tile::Size);
@@ -71,7 +60,6 @@ Tilemap::Tilemap(const TextureHolder& textures)
 
 void Tilemap::addTile(Tile::ID id, Tile::Type type)
 {
-	// TODO: assert inserted
 	TilePtr tile(new Tile(id, type));
 	tile->setPosition(id.first * Tile::Size, id.second * Tile::Size);
 	mMap[id] = tile;
@@ -79,13 +67,14 @@ void Tilemap::addTile(Tile::ID id, Tile::Type type)
 
 Tilemap::TilePtr Tilemap::getTile(Tile::ID id)
 {
+	assert(mMap.find(id) != mMap.end());
 	return mMap[id];
 }
 
 Tilemap::TilePtr Tilemap::getTile(sf::Vector2f position)
 {
 	Tile::ID id(position.x / Tile::Size, position.y / Tile::Size);
-	return mMap[id];
+	return getTile(id);
 }
 
 void Tilemap::getNeighbours(Tile::ID id, std::vector<TilePtr>& neighbours)

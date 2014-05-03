@@ -8,8 +8,6 @@
 #include <algorithm>
 #include <cmath>
 #include <limits>
-#include <iostream>
-#include <cassert>
 
 
 Dungeon::Dungeon(sf::RenderTarget& outputTarget, FontHolder& fonts, SoundPlayer& sounds)
