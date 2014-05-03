@@ -7,6 +7,7 @@
 
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Rect.hpp>
+#include <SFML/Graphics/Texture.hpp>
 
 #include <map>
 #include <memory>
@@ -30,9 +31,11 @@ class Tilemap : public SceneNode
 
 	public:
 		void						addTile(Tile::ID, Tile::Type type, const TextureHolder& textures);
+		sf::FloatRect				getBounds() const;
 
 
 	private:
+		const sf::Texture 			mTileset;
 		sf::Vector2u				mSize;		
 		sf::FloatRect				mBounds;
 		sf::VertexArray				mImage;

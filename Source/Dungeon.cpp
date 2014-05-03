@@ -22,7 +22,6 @@ Dungeon::Dungeon(sf::RenderTarget& outputTarget, FontHolder& fonts, SoundPlayer&
 , mSceneLayers()
 , mCommandQueue()
 , mTilemap()
-, mDungeonBounds()
 , mSpawnPosition()
 , mPlayerCharacter(nullptr)
 , mBloomEffect()
@@ -75,7 +74,7 @@ void Dungeon::loadTextures()
 
 void Dungeon::setupView()
 {
-	auto visibleArea = Tile::Size * 5u; // 5x5 cells
+	auto visibleArea = Tile::Size * 20u; // i x i cells
 	auto zoom = visibleArea / std::min(mView.getSize().x, mView.getSize().y);	
 	mView.setCenter(mSpawnPosition);	
 	mView.zoom(zoom);
@@ -83,26 +82,26 @@ void Dungeon::setupView()
 
 void Dungeon::adaptViewPosition()
 {
-    sf::Vector2f borderDistance = sf::Vector2f(getViewBounds().width / 2.f, getViewBounds().height / 2.f);
-    
-	sf::Vector2f position = mPlayerCharacter->getPosition();
+    auto borderDistance = sf::Vector2f(getViewBounds().width / 2.f, getViewBounds().height / 2.f);
+	auto dungeonBounds = mTilemap->getBounds();
+	auto position = mPlayerCharacter->getPosition();
     mView.setCenter(position);
-	position.x = std::max(position.x, mDungeonBounds.left + borderDistance.x);
-	position.x = std::min(position.x, mDungeonBounds.left + mDungeonBounds.width - borderDistance.x);
-	position.y = std::max(position.y, mDungeonBounds.top + borderDistance.y);
-	position.y = std::min(position.y, mDungeonBounds.top + mDungeonBounds.height - borderDistance.y);
+	position.x = std::max(position.x, dungeonBounds.left + borderDistance.x);
+	position.x = std::min(position.x, dungeonBounds.left + dungeonBounds.width - borderDistance.x);
+	position.y = std::max(position.y, dungeonBounds.top + borderDistance.y);
+	position.y = std::min(position.y, dungeonBounds.top + dungeonBounds.height - borderDistance.y);
 	mView.setCenter(position);
 }
 
 void Dungeon::adaptPlayerPosition()
 {
 	const auto borderDistance = Tile::Size / 2;
-
-	sf::Vector2f position = mPlayerCharacter->getPosition();
-	position.x = std::max(position.x, mDungeonBounds.left + borderDistance);
-	position.x = std::min(position.x, mDungeonBounds.left + mDungeonBounds.width - borderDistance);
-	position.y = std::max(position.y, mDungeonBounds.top + borderDistance);
-	position.y = std::min(position.y, mDungeonBounds.top + mDungeonBounds.height - borderDistance);
+	auto dungeonBounds = mTilemap->getBounds();
+	auto position = mPlayerCharacter->getPosition();
+	position.x = std::max(position.x, dungeonBounds.left + borderDistance);
+	position.x = std::min(position.x, dungeonBounds.left + dungeonBounds.width - borderDistance);
+	position.y = std::max(position.y, dungeonBounds.top + borderDistance);
+	position.y = std::min(position.y, dungeonBounds.top + dungeonBounds.height - borderDistance);
 	mPlayerCharacter->setPosition(position);
 }
 
@@ -202,6 +201,8 @@ void Dungeon::buildScene()
 	}
 
 	std::unique_ptr<Tilemap> tilemap(new Tilemap(mTextures));
+	mTilemap = tilemap.get();
+	mTilemap->setPosition(0.f, 0.f);
 	mSceneLayers[Background]->attachChild(std::move(tilemap));
 	//TODO: generate random spawn position (get cell?)
 	Tile::ID tileId(5u, 5u);
@@ -212,15 +213,6 @@ void Dungeon::buildScene()
 	mPlayerCharacter = player.get();
 	mPlayerCharacter->setPosition(mSpawnPosition);
 	mSceneLayers[Main]->attachChild(std::move(player));
-}
-
-void Dungeon::addTile(Tile::ID id, Tile::Type type) 
-{
-	std::unique_ptr<Tile> tilePtr(new Tile(id, type, mTextures));	
-	auto tile = tilePtr.get();
-	// Tile has centered origin	
-	tile->setPosition(id.first * Tile::Size, id.second * Tile::Size);
-	mSceneLayers[Main]->attachChild(std::move(tilePtr));
 }
 
 sf::FloatRect Dungeon::getViewBounds() const

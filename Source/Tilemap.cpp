@@ -10,7 +10,8 @@
 
 Tilemap::Tilemap(const TextureHolder& textures)
 : SceneNode(Category::Tilemap)
-, mSize(10u, 10u)
+, mTileset(textures.get(Textures::Tiles))
+, mSize(500u, 500u)
 , mBounds(0.f, 0.f, mSize.x * Tile::Size, mSize.y * Tile::Size)
 , mImage()
 , mMap()
@@ -38,19 +39,47 @@ Tilemap::Tilemap(const TextureHolder& textures)
 		addTile(lastColumn, Tile::Type::Wall, textures);
 	}
 
-	// TODO: generate VertexArray
+	mImage.setPrimitiveType(sf::Quads);
+    mImage.resize(mSize.x * mSize.y * 4);
 	for (auto x = 0; x < mSize.x; ++x)
 		for (auto y = 0; y < mSize.y; ++y)
 		{
 			auto tilePtr = std::move(mMap[Tile::ID(x,y)]);
 			auto tile = tilePtr.get();
-			std::cout << tile->getID().first << " " << tile->getID().second << " || " << tile->getPosition().x << " " << tile->getPosition().y << std::endl;
+			auto type = tile->getType();
+			std::cout << tile->getID().first << " " << tile->getID().second << " || " << tile->getPosition().x << " " << tile->getPosition().y << " || " << type << std::endl;
+
+			// find its position in the tileset texture
+			auto tu = type % (mTileset.getSize().x / Tile::Size);
+			auto tv = type / (mTileset.getSize().x / Tile::Size);
+
+			// get a pointer to the current tile's quad
+			sf::Vertex* quad = &mImage[(x + y * mSize.x) * 4];
+
+			// define its 4 corners
+			quad[0].position = sf::Vector2f(x * Tile::Size, y * Tile::Size);
+			quad[1].position = sf::Vector2f((x + 1) * Tile::Size, y * Tile::Size);
+			quad[2].position = sf::Vector2f((x + 1) * Tile::Size, (y + 1) * Tile::Size);
+			quad[3].position = sf::Vector2f(x * Tile::Size, (y + 1) * Tile::Size);
+
+			// define its 4 texture coordinates
+			quad[0].texCoords = sf::Vector2f(tu * Tile::Size, tv * Tile::Size);
+			quad[1].texCoords = sf::Vector2f((tu + 1) * Tile::Size, tv * Tile::Size);
+			quad[2].texCoords = sf::Vector2f((tu + 1) * Tile::Size, (tv + 1) * Tile::Size);
+			quad[3].texCoords = sf::Vector2f(tu * Tile::Size, (tv + 1) * Tile::Size);
 		}
 }
 
 void Tilemap::drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const
 {
-	// TODO: draw VertexArray
+	// apply the transform
+	states.transform *= getTransform();
+    
+	// apply the tileset texture
+	states.texture = &mTileset;
+
+	// draw the vertex array
+	target.draw(mImage, states);
 }
 	
 void Tilemap::updateCurrent(sf::Time dt, CommandQueue& commands)
@@ -65,4 +94,9 @@ void Tilemap::addTile(Tile::ID id, Tile::Type type, const TextureHolder& texture
 	auto tile = tilePtr.get();
 	tile->setPosition(id.first * Tile::Size, id.second * Tile::Size);
 	mMap[id] = std::move(tilePtr);
+}
+
+sf::FloatRect Tilemap::getBounds() const
+{
+	return mBounds;
 }

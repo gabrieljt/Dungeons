@@ -46,7 +46,17 @@ Tile::ID Tile::getID() const
 	return mId;
 }
 
+Tile::Type Tile::getType() const
+{
+	return mType;
+}
+
 bool Tile::isWalkable() const
 {
 	return getCategory() == Category::WalkableTile;
+}
+
+void Tile::drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const
+{
+	// Tilemap draws it
 }

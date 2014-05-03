@@ -85,7 +85,7 @@ void SceneNode::drawBoundingRect(sf::RenderTarget& target, sf::RenderStates) con
 	shape.setSize(sf::Vector2f(rect.width, rect.height));
 	shape.setFillColor(sf::Color::Transparent);
 	shape.setOutlineColor(sf::Color::Green);
-	shape.setOutlineThickness(0.1f);
+	shape.setOutlineThickness(1.f);
 
 	target.draw(shape);
 }

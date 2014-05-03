@@ -49,7 +49,6 @@ class Dungeon : private sf::NonCopyable
 		void								updateSounds();
 
 		void								buildScene();
-		void								addTile(Tile::ID id, Tile::Type);
 		sf::FloatRect						getViewBounds() const;
 
 
@@ -75,7 +74,6 @@ class Dungeon : private sf::NonCopyable
 		CommandQueue						mCommandQueue;
 
 		Tilemap*							mTilemap;
-		sf::FloatRect						mDungeonBounds;
 		sf::Vector2f						mSpawnPosition;		
 		Character*							mPlayerCharacter;
 

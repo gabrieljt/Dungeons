@@ -29,12 +29,17 @@ class Tile : public SpriteNode
 		virtual sf::FloatRect	getBoundingRect() const;
 
 		ID 						getID() const;
+		Type 					getType() const;
 		bool					isWalkable() const;
 
 
 	private:
+		virtual void			drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const;
+
+
+	private:
 		const ID				mId;				
-		Type					mType;
+		const Type				mType;
 };
 
 #endif // GAME_TILE_HPP
