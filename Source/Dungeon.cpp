@@ -180,10 +180,9 @@ void Dungeon::handleCollisions()
 		if (matchesCategories(pair, Category::Character, Category::Tilemap))
 		{
 			auto& character = static_cast<Character&>(*pair.first);
-			auto tile 		= mTilemap->getTile(character.getPosition());
 			std::vector<Tilemap::TilePtr> neighbours;
 			neighbours.push_back(mTilemap->getTile(character.getPosition()));
-			mTilemap->getNeighbours(tile->getID(), neighbours);
+			mTilemap->getNeighbours(mTilemap->getTile(character.getPosition())->getID(), neighbours);
 			FOREACH (auto tile, neighbours)
 			{
 				if (!tile->isWalkable() && tile->getBoundingRect().intersects(character.getBoundingRect()))
