@@ -11,7 +11,7 @@
 Tilemap::Tilemap(const TextureHolder& textures)
 : SceneNode(Category::Tilemap)
 , mTileset(textures.get(Textures::Tiles))
-, mSize(500u, 500u)
+, mSize(100u, 100u)
 , mBounds(0.f, 0.f, mSize.x * Tile::Size, mSize.y * Tile::Size)
 , mImage()
 , mMap()
@@ -41,8 +41,8 @@ Tilemap::Tilemap(const TextureHolder& textures)
 
 	mImage.setPrimitiveType(sf::Quads);
     mImage.resize(mSize.x * mSize.y * 4);
-	for (auto x = 0; x < mSize.x; ++x)
-		for (auto y = 0; y < mSize.y; ++y)
+	for (auto x = 0u; x < mSize.x; ++x)
+		for (auto y = 0u; y < mSize.y; ++y)
 		{
 			auto tilePtr = std::move(mMap[Tile::ID(x,y)]);
 			auto tile = tilePtr.get();
@@ -70,6 +70,20 @@ Tilemap::Tilemap(const TextureHolder& textures)
 		}
 }
 
+void Tilemap::addTile(Tile::ID id, Tile::Type type, const TextureHolder& textures)
+{
+	// TODO: assert inserted
+	TilePtr tilePtr(new Tile(id, type, textures));
+	auto tile = tilePtr.get();
+	tile->setPosition(id.first * Tile::Size, id.second * Tile::Size);
+	mMap[id] = std::move(tilePtr);
+}
+
+sf::FloatRect Tilemap::getBoundingRect() const
+{
+	return mBounds;
+}
+
 void Tilemap::drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const
 {
 	// apply the transform
@@ -85,18 +99,4 @@ void Tilemap::drawCurrent(sf::RenderTarget& target, sf::RenderStates states) con
 void Tilemap::updateCurrent(sf::Time dt, CommandQueue& commands)
 {
 	// TODO: update tiles and vertex array?
-}
-
-void Tilemap::addTile(Tile::ID id, Tile::Type type, const TextureHolder& textures)
-{
-	// TODO: assert inserted
-	TilePtr tilePtr(new Tile(id, type, textures));
-	auto tile = tilePtr.get();
-	tile->setPosition(id.first * Tile::Size, id.second * Tile::Size);
-	mMap[id] = std::move(tilePtr);
-}
-
-sf::FloatRect Tilemap::getBounds() const
-{
-	return mBounds;
 }

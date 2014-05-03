@@ -74,7 +74,7 @@ void Dungeon::loadTextures()
 
 void Dungeon::setupView()
 {
-	auto visibleArea = Tile::Size * 20u; // i x i cells
+	auto visibleArea = Tile::Size * 10u; // i x i cells
 	auto zoom = visibleArea / std::min(mView.getSize().x, mView.getSize().y);	
 	mView.setCenter(mSpawnPosition);	
 	mView.zoom(zoom);
@@ -83,7 +83,7 @@ void Dungeon::setupView()
 void Dungeon::adaptViewPosition()
 {
     auto borderDistance = sf::Vector2f(getViewBounds().width / 2.f, getViewBounds().height / 2.f);
-	auto dungeonBounds = mTilemap->getBounds();
+	auto dungeonBounds = mTilemap->getBoundingRect();
 	auto position = mPlayerCharacter->getPosition();
     mView.setCenter(position);
 	position.x = std::max(position.x, dungeonBounds.left + borderDistance.x);
@@ -96,7 +96,7 @@ void Dungeon::adaptViewPosition()
 void Dungeon::adaptPlayerPosition()
 {
 	const auto borderDistance = Tile::Size / 2;
-	auto dungeonBounds = mTilemap->getBounds();
+	auto dungeonBounds = mTilemap->getBoundingRect();
 	auto position = mPlayerCharacter->getPosition();
 	position.x = std::max(position.x, dungeonBounds.left + borderDistance);
 	position.x = std::min(position.x, dungeonBounds.left + dungeonBounds.width - borderDistance);
@@ -138,7 +138,13 @@ void Dungeon::handleCollisions()
 	std::set<SceneNode::Pair> collisionPairs;
 	mSceneGraph.checkSceneCollision(mSceneGraph, collisionPairs);	
 	FOREACH(SceneNode::Pair pair, collisionPairs)
-	{		
+	{	
+		if (matchesCategories(pair, Category::Character, Category::Tilemap))
+		{
+			auto& character = static_cast<Character&>(*pair.first);
+			std::cout << "I'm here: " << character.getPosition().x << " " << character.getPosition().y << std::endl;
+		}
+
 		if (matchesCategories(pair, Category::Character, Category::UnwalkableTile))
 		{
 			auto& character 		= static_cast<Character&>(*pair.first);

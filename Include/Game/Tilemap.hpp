@@ -23,15 +23,14 @@ class Tilemap : public SceneNode
 	public:
 									Tilemap(const TextureHolder& textures);
 
+		virtual sf::FloatRect		getBoundingRect() const;
+
+		void						addTile(Tile::ID, Tile::Type type, const TextureHolder& textures);
+
 
 	private:
 		virtual void				drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const;
 		virtual void 				updateCurrent(sf::Time dt, CommandQueue& commands);
-
-
-	public:
-		void						addTile(Tile::ID, Tile::Type type, const TextureHolder& textures);
-		sf::FloatRect				getBounds() const;
 
 
 	private:
