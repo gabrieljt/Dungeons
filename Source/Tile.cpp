@@ -1,13 +1,10 @@
 #include <Game/Tile.hpp>
 #include <Game/DataTables.hpp>
 #include <Game/Utility.hpp>
-#include <Game/CommandQueue.hpp>
 #include <Game/ResourceHolder.hpp>
 
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
-
-#include <cmath>
 
 
 using namespace std::placeholders;
@@ -19,10 +16,10 @@ namespace
 
 const unsigned int Tile::Size = 16u;
 
-Tile::Tile(Type type, const TextureHolder& textures, const TileID id)
+Tile::Tile(const ID id, Type type, const TextureHolder& textures)
 : SpriteNode(textures.get(Table[type].texture), Table[type].textureRect)
-, mType(type)
 , mId(id)
+, mType(type)
 {	
 }
 
@@ -42,6 +39,11 @@ unsigned int Tile::getCategory() const
 sf::FloatRect Tile::getBoundingRect() const
 {
 	return getWorldTransform().transformRect(mSprite.getGlobalBounds());
+}
+
+Tile::ID Tile::getID() const
+{
+	return mId;
 }
 
 bool Tile::isWalkable() const

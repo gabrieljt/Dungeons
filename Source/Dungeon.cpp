@@ -8,7 +8,6 @@
 #include <algorithm>
 #include <cmath>
 #include <limits>
-#include <map>
 #include <iostream>
 
 
@@ -21,9 +20,12 @@ Dungeon::Dungeon(sf::RenderTarget& outputTarget, FontHolder& fonts, SoundPlayer&
 , mSounds(sounds)
 , mSceneGraph()
 , mSceneLayers()
+, mCommandQueue()
+, mTilemap()
 , mDungeonBounds()
 , mSpawnPosition()
 , mPlayerCharacter(nullptr)
+, mBloomEffect()
 {
 	mSceneTexture.create(mTarget.getSize().x, mTarget.getSize().y);
 
@@ -199,35 +201,10 @@ void Dungeon::buildScene()
 		mSceneGraph.attachChild(std::move(layer));
 	}
 
-	// TODO: generate "random" dungeon (pixels) and map (tiles) bounds
-	const auto tilemapSize = 10u; // 10x10 cells
-	mDungeonBounds = sf::FloatRect(0.f, 0.f, Tile::Size * tilemapSize, Tile::Size * tilemapSize); //160x160 pixels
-	
-	// TODO: generate LEVEL!!!!
-	for (auto x = 1u; x < tilemapSize - 1u; ++x)
-		for (auto y = 1u; y < tilemapSize - 1u; ++y)
-		{
-			if (x != 3u || y != 3u)
-			{
-				Tile::TileID id(x, y);
-				addTile(id, Tile::Type::Floor);
-			}
-		}
-	addTile(Tile::TileID(3u, 3u), Tile::Type::Wall);
-	for (auto i = 0u; i < tilemapSize; ++i)
-	{
-		Tile::TileID firstRow(i, 0u);
-		Tile::TileID lastRow(i, tilemapSize - 1);
-		Tile::TileID firstColumn(0u, i);
-		Tile::TileID lastColumn(tilemapSize - 1, i);
-		addTile(firstRow, Tile::Type::Wall);
-		addTile(lastRow, Tile::Type::Wall);
-		addTile(firstColumn, Tile::Type::Wall);
-		addTile(lastColumn, Tile::Type::Wall);
-	}
-
+	std::unique_ptr<Tilemap> tilemap(new Tilemap(mTextures));
+	mSceneLayers[Background]->attachChild(std::move(tilemap));
 	//TODO: generate random spawn position (get cell?)
-	Tile::TileID tileId(5u, 5u);
+	Tile::ID tileId(5u, 5u);
 	mSpawnPosition = sf::Vector2f(tileId.first * Tile::Size, tileId.second * Tile::Size);
 
 	// Add player's character
@@ -237,9 +214,9 @@ void Dungeon::buildScene()
 	mSceneLayers[Main]->attachChild(std::move(player));
 }
 
-void Dungeon::addTile(Tile::TileID id, Tile::Type type) 
+void Dungeon::addTile(Tile::ID id, Tile::Type type) 
 {
-	std::unique_ptr<Tile> tilePtr(new Tile(type, mTextures, id));	
+	std::unique_ptr<Tile> tilePtr(new Tile(id, type, mTextures));	
 	auto tile = tilePtr.get();
 	// Tile has centered origin	
 	tile->setPosition(id.first * Tile::Size, id.second * Tile::Size);
