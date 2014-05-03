@@ -11,7 +11,7 @@
 Tilemap::Tilemap(const TextureHolder& textures)
 : SceneNode(Category::Tilemap)
 , mTileset(textures.get(Textures::Tiles))
-, mSize(100u, 100u)
+, mSize(1000u, 1000u)
 , mBounds(0.f, 0.f, mSize.x * Tile::Size, mSize.y * Tile::Size)
 , mImage()
 , mMap()
@@ -20,13 +20,13 @@ Tilemap::Tilemap(const TextureHolder& textures)
 	for (auto x = 1u; x < mSize.x - 1u; ++x)
 		for (auto y = 1u; y < mSize.y - 1u; ++y)
 		{
-			if (x != 3u || y != 3u)
+			if (x != 10u || y != 10u)
 			{
 				Tile::ID id(x, y);
 				addTile(id, Tile::Type::Floor);
 			}
 		}
-	addTile(Tile::ID(3u, 3u), Tile::Type::Wall);
+	addTile(Tile::ID(10u, 10u), Tile::Type::Wall);
 	for (auto i = 0u; i < mSize.x; ++i)
 	{
 		Tile::ID firstRow(i, 0u);
@@ -88,10 +88,23 @@ Tilemap::TilePtr Tilemap::getTile(sf::Vector2f position)
 	return mMap[id];
 }
 
-Tilemap::TilePtr Tilemap::getTile(float x, float y)
+void Tilemap::getNeighbours(Tile::ID id, std::vector<TilePtr>& neighbours)
 {
-	Tile::ID id(x / Tile::Size, y / Tile::Size);
-	return mMap[id];
+	TilePtr tile = getTile(id);
+	neighbours.push_back(getTile(Tile::ID(id.first - 1u, id.second - 1u)));
+	neighbours.push_back(getTile(Tile::ID(id.first - 1u, id.second)));
+	neighbours.push_back(getTile(Tile::ID(id.first - 1u, id.second + 1u)));
+	neighbours.push_back(getTile(Tile::ID(id.first, id.second - 1u)));
+	neighbours.push_back(getTile(Tile::ID(id.first, id.second + 1u)));
+	neighbours.push_back(getTile(Tile::ID(id.first + 1u, id.second - 1u)));
+	neighbours.push_back(getTile(Tile::ID(id.first + 1u, id.second)));
+	neighbours.push_back(getTile(Tile::ID(id.first + 1u, id.second + 1u)));			
+}
+
+void Tilemap::getNeighbours(sf::Vector2f position, std::vector<TilePtr>& neighbours)
+{
+	Tile::ID id(position.x / Tile::Size, position.y / Tile::Size);
+	getNeighbours(id, neighbours);
 }
 
 sf::FloatRect Tilemap::getBoundingRect() const

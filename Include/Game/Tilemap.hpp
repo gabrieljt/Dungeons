@@ -28,7 +28,8 @@ class Tilemap : public SceneNode
 		void						addTile(Tile::ID, Tile::Type type);
 		TilePtr 					getTile(Tile::ID id);
 		TilePtr 					getTile(sf::Vector2f position);
-		TilePtr 					getTile(float x, float y);
+		void 						getNeighbours(Tile::ID id, std::vector<TilePtr>& neighbours);
+		void 						getNeighbours(sf::Vector2f position, std::vector<TilePtr>& neighbours);
 
 
 	private:
