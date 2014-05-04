@@ -74,7 +74,7 @@ void Dungeon::loadTextures()
 
 void Dungeon::setupView()
 {
-	auto visibleArea = Tile::Size * 8u; // i x i cells
+	auto visibleArea = Tile::Size * 15u; // i x i cells
 	auto zoom = visibleArea / std::min(mView.getSize().x, mView.getSize().y);	
 	mView.setCenter(mSpawnPosition);	
 	mView.zoom(zoom);

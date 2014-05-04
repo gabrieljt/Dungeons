@@ -26,8 +26,9 @@ Tilemap::Tilemap(const TextureHolder& textures)
 
 	createRoom(sf::IntRect(0, 0, 4, 8));
 	createRoom(sf::IntRect(18, 0, 10, 10));
-	createHorizontalTunnel(3, 18, 3);
-
+	createTunnelH(3, 18, 3);
+	createRoom(sf::IntRect(5, 20, 40, 13));
+	createTunnelV(4, 20, 10);
 
 	mImage.setPrimitiveType(sf::Quads);
     mImage.resize(mSize.x * mSize.y * 4);
@@ -60,7 +61,7 @@ Tilemap::Tilemap(const TextureHolder& textures)
 
 void Tilemap::addTile(Tile::ID id, Tile::Type type)
 {
-	if (mMap.find(id) != mMap.end())
+	if (mMap.find(id) != mMap.end() && validateTile(id))
 		mMap.erase(id);
 	TilePtr tile = std::make_shared<Tile>(id, type);
 	tile->setPosition(id.first * Tile::Size, id.second * Tile::Size);
@@ -69,7 +70,10 @@ void Tilemap::addTile(Tile::ID id, Tile::Type type)
 
 Tilemap::TilePtr Tilemap::getTile(Tile::ID id)
 {	
-	return mMap[id];
+	if (validateTile(id))
+		return mMap[id];
+	else
+		return nullptr;
 }
 
 Tilemap::TilePtr Tilemap::getTile(sf::Vector2f position)
@@ -153,12 +157,21 @@ void Tilemap::createRoom(sf::IntRect bounds)
 		}
 }
 
-void Tilemap::createHorizontalTunnel(int x1, int x2, int y)
+void Tilemap::createTunnelH(int x1, int x2, int y)
 {
 	for (auto x = std::min(x1, x2); x < std::max(x1, x2) + 1; ++x)
 	{		
 		addTile(Tile::ID(x, y - 1u)	, Tile::Type::TunnelWall);
 		addTile(Tile::ID(x, y)		, Tile::Type::TunnelFloor);
 		addTile(Tile::ID(x, y + 1u)	, Tile::Type::TunnelWall);
+	}
+}
+void Tilemap::createTunnelV(int y1, int y2, int x)
+{
+	for (auto y = std::min(y1, y2); y < std::max(y1, y2) + 1; ++y)
+	{		
+		addTile(Tile::ID(x - 1u, y)	, Tile::Type::TunnelWall);
+		addTile(Tile::ID(x, y)		, Tile::Type::TunnelFloor);
+		addTile(Tile::ID(x + 1u, y)	, Tile::Type::TunnelWall);
 	}
 }

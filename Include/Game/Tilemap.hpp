@@ -39,7 +39,8 @@ class Tilemap : public SceneNode
 		bool 						validateTile(Tile::ID id);	
 
 		void						createRoom(sf::IntRect bounds);
-		void 						createHorizontalTunnel(int x1, int x2, int y);
+		void 						createTunnelH(int x1, int x2, int y);
+		void 						createTunnelV(int y1, int y2, int x);
 
 
 	private:
