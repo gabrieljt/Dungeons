@@ -11,7 +11,7 @@
 Tilemap::Tilemap(const TextureHolder& textures)
 : SceneNode(Category::Tilemap)
 , mTileset(textures.get(Textures::Tiles))
-, mSize(200u, 200u)
+, mSize(10u, 5u)
 , mBounds(0.f, 0.f, mSize.x * Tile::Size, mSize.y * Tile::Size)
 , mImage()
 , mMap()
@@ -21,7 +21,7 @@ Tilemap::Tilemap(const TextureHolder& textures)
 		for (auto y = 0u; y < mSize.y; ++y)
 		{
 			Tile::ID id(x, y);
-			if (x % 2 != 0 && y % 2 != 0)
+			if (x % 2 == 0 && y % 2 == 0)
 			{				
 				addTile(id, Tile::Type::Wall);
 			}
@@ -58,36 +58,54 @@ Tilemap::Tilemap(const TextureHolder& textures)
 		}
 }
 
+bool Tilemap::validateTile(Tile::ID id)
+{
+    return id.first >= 0 && id.first < mSize.x && id.second >=0 && id.second < mSize.y;
+}
+
 void Tilemap::addTile(Tile::ID id, Tile::Type type)
 {
-	TilePtr tile(new Tile(id, type));
-	tile->setPosition(id.first * Tile::Size, id.second * Tile::Size);
-	mMap[id] = tile;
+		TilePtr tile = std::make_shared<Tile>(id, type);
+		tile->setPosition(id.first * Tile::Size, id.second * Tile::Size);
+		mMap[id] = tile;
 }
 
 Tilemap::TilePtr Tilemap::getTile(Tile::ID id)
 {
-	assert(mMap.find(id) != mMap.end());
-	return mMap[id];
+		return mMap[id];
 }
 
 Tilemap::TilePtr Tilemap::getTile(sf::Vector2f position)
-{
+{	
 	Tile::ID id(position.x / Tile::Size, position.y / Tile::Size);
 	return getTile(id);
 }
 
 void Tilemap::getNeighbours(Tile::ID id, std::vector<TilePtr>& neighbours)
 {
-	TilePtr tile = getTile(id);
-	neighbours.push_back(getTile(Tile::ID(id.first - 1u, id.second - 1u)));
-	neighbours.push_back(getTile(Tile::ID(id.first - 1u, id.second)));
-	neighbours.push_back(getTile(Tile::ID(id.first - 1u, id.second + 1u)));
-	neighbours.push_back(getTile(Tile::ID(id.first, id.second - 1u)));
-	neighbours.push_back(getTile(Tile::ID(id.first, id.second + 1u)));
-	neighbours.push_back(getTile(Tile::ID(id.first + 1u, id.second - 1u)));
-	neighbours.push_back(getTile(Tile::ID(id.first + 1u, id.second)));
-	neighbours.push_back(getTile(Tile::ID(id.first + 1u, id.second + 1u)));			
+	if (validateTile(Tile::ID(id.first - 1u, id.second - 1u)))
+		neighbours.push_back(getTile(Tile::ID(id.first - 1u, id.second - 1u)));
+
+	if (validateTile(Tile::ID(id.first - 1u, id.second)))
+		neighbours.push_back(getTile(Tile::ID(id.first - 1u, id.second)));
+
+	if (validateTile(Tile::ID(id.first - 1u, id.second + 1u)))
+		neighbours.push_back(getTile(Tile::ID(id.first - 1u, id.second + 1u)));
+
+	if (validateTile(Tile::ID(id.first, id.second - 1u)))
+		neighbours.push_back(getTile(Tile::ID(id.first, id.second - 1u)));
+
+	if (validateTile(Tile::ID(id.first, id.second + 1u)))
+		neighbours.push_back(getTile(Tile::ID(id.first, id.second + 1u)));
+
+	if (validateTile(Tile::ID(id.first + 1u, id.second - 1u)))
+		neighbours.push_back(getTile(Tile::ID(id.first + 1u, id.second - 1u)));
+
+	if (validateTile(Tile::ID(id.first + 1u, id.second)))
+		neighbours.push_back(getTile(Tile::ID(id.first + 1u, id.second)));
+
+	if (validateTile(Tile::ID(id.first + 1u, id.second + 1u)))
+		neighbours.push_back(getTile(Tile::ID(id.first + 1u, id.second + 1u)));					
 }
 
 void Tilemap::getNeighbours(sf::Vector2f position, std::vector<TilePtr>& neighbours)

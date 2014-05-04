@@ -36,6 +36,8 @@ class Tilemap : public SceneNode
 		virtual void				drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const;
 		virtual void 				updateCurrent(sf::Time dt, CommandQueue& commands);
 
+		bool 						validateTile(Tile::ID id);	
+
 
 	private:
 		const sf::Texture 			mTileset;
