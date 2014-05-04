@@ -73,7 +73,7 @@ void Dungeon::loadTextures()
 
 void Dungeon::setupView()
 {
-	auto visibleArea = Tile::Size * 4u; // i x i cells
+	auto visibleArea = Tile::Size * 8u; // i x i cells
 	auto zoom = visibleArea / std::min(mView.getSize().x, mView.getSize().y);	
 	mView.setCenter(mSpawnPosition);	
 	mView.zoom(zoom);
@@ -220,7 +220,7 @@ void Dungeon::buildScene()
 	// Add player's character
 	std::unique_ptr<Character> player(new Character(Character::Player, mTextures, mFonts));
 	mPlayerCharacter = player.get();
-	mSpawnPosition = mTilemap->getTile(Tile::ID(1u, 1u))->getPosition();
+	mSpawnPosition = mTilemap->getTile(Tile::ID(2u, 2u))->getPosition();
 	mPlayerCharacter->setPosition(mSpawnPosition);
 	mSceneLayers[Main]->attachChild(std::move(player));
 }

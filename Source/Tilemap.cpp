@@ -11,23 +11,24 @@
 Tilemap::Tilemap(const TextureHolder& textures)
 : SceneNode(Category::Tilemap)
 , mTileset(textures.get(Textures::Tiles))
-, mSize(10u, 5u)
+, mSize(20u, 30u)
 , mBounds(0.f, 0.f, mSize.x * Tile::Size, mSize.y * Tile::Size)
 , mImage()
 , mMap()
 {
-	// sample SQUARE map.
+	// fills the map, easier to build vertex array
 	for (auto x = 0u; x < mSize.x; ++x)
 		for (auto y = 0u; y < mSize.y; ++y)
 		{
-			Tile::ID id(x, y);
-			if (x % 2 == 0 && y % 2 == 0)
-			{				
-				addTile(id, Tile::Type::Wall);
-			}
-			else
-				addTile(id, Tile::Type::Floor);
+			Tile::ID id(x, y);	
+			addTile(id, Tile::Type::Floor);
 		}
+
+	createRoom(sf::IntRect(5, 5, 4, 4));
+	createRoom(sf::IntRect(0, 0, 10, 10));
+	createRoom(sf::IntRect(6, 1, 3, 3));
+	createRoom(sf::IntRect(2, 4, 2, 2));
+	createRoom(sf::IntRect(2, 7, 1, 1));
 
 	mImage.setPrimitiveType(sf::Quads);
     mImage.resize(mSize.x * mSize.y * 4);
@@ -58,21 +59,18 @@ Tilemap::Tilemap(const TextureHolder& textures)
 		}
 }
 
-bool Tilemap::validateTile(Tile::ID id)
-{
-    return id.first >= 0 && id.first < mSize.x && id.second >=0 && id.second < mSize.y;
-}
-
 void Tilemap::addTile(Tile::ID id, Tile::Type type)
 {
-		TilePtr tile = std::make_shared<Tile>(id, type);
-		tile->setPosition(id.first * Tile::Size, id.second * Tile::Size);
-		mMap[id] = tile;
+	if (mMap.find(id) != mMap.end())
+		mMap.erase(id);
+	TilePtr tile = std::make_shared<Tile>(id, type);
+	tile->setPosition(id.first * Tile::Size, id.second * Tile::Size);
+	mMap[id] = tile;
 }
 
 Tilemap::TilePtr Tilemap::getTile(Tile::ID id)
-{
-		return mMap[id];
+{	
+	return mMap[id];
 }
 
 Tilemap::TilePtr Tilemap::getTile(sf::Vector2f position)
@@ -134,4 +132,26 @@ void Tilemap::drawCurrent(sf::RenderTarget& target, sf::RenderStates states) con
 void Tilemap::updateCurrent(sf::Time dt, CommandQueue& commands)
 {
 	// TODO: update tiles and vertex array?
+}
+
+bool Tilemap::validateTile(Tile::ID id)
+{
+    return mMap.find(id) != mMap.end() &&
+    		id.first >= 0 && id.first < mSize.x && id.second >=0 && id.second < mSize.y;
+}
+
+void Tilemap::createRoom(sf::IntRect bounds)
+{	
+	for (auto x = bounds.left; x < bounds.left + bounds.width; ++x)
+		for (auto y = bounds.top; y < bounds.top + bounds.height; ++y)
+		{
+			Tile::ID firstRow(x, bounds.top);
+			Tile::ID lastRow(x, bounds.top + bounds.height - 1);
+			Tile::ID firstColumn(bounds.left, y);
+			Tile::ID lastColumn(bounds.left + bounds.height - 1, y);		
+			addTile(firstRow, Tile::Type::Wall);
+			addTile(lastRow, Tile::Type::Wall);
+			addTile(firstColumn, Tile::Type::Wall);
+			addTile(lastColumn, Tile::Type::Wall);
+		}
 }

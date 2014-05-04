@@ -38,6 +38,8 @@ class Tilemap : public SceneNode
 
 		bool 						validateTile(Tile::ID id);	
 
+		void						createRoom(sf::IntRect bounds);
+
 
 	private:
 		const sf::Texture 			mTileset;
