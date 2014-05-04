@@ -67,6 +67,7 @@ bool Dungeon::hasAlivePlayer() const
 
 void Dungeon::loadTextures()
 {
+	//mTextures.load(Textures::Characters,	"Media/Textures/characters-sf.png");
 	mTextures.load(Textures::Characters,	"Media/Textures/characters.png");
 	mTextures.load(Textures::Tiles,			"Media/Textures/tiles.png");
 }

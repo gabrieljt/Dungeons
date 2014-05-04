@@ -27,10 +27,19 @@ std::vector<TileData> initializeTileData()
 	std::vector<TileData> data(Tile::TypeCount);
 
 	data[Tile::Floor].texture = Textures::Tiles;
-	data[Tile::Floor].textureRect = sf::IntRect(32, 32, 16, 16);
+	data[Tile::None].tilesetIndex = 16;
+
+	data[Tile::Floor].texture = Textures::Tiles;
+	data[Tile::Floor].tilesetIndex = 3;
 
 	data[Tile::Wall].texture = Textures::Tiles;
-	data[Tile::Wall].textureRect = sf::IntRect(80, 32, 16, 16);
+	data[Tile::Wall].tilesetIndex = 21;
+
+	data[Tile::TunnelFloor].texture = Textures::Tiles;
+	data[Tile::TunnelFloor].tilesetIndex = 0;
+
+	data[Tile::TunnelWall].texture = Textures::Tiles;
+	data[Tile::TunnelWall].tilesetIndex = 19;
 
 	return data;
 }

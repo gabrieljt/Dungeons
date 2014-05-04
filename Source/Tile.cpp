@@ -27,9 +27,8 @@ unsigned int Tile::getCategory() const
 	switch (mType)
 	{
 		case Floor:
+		case TunnelFloor:
 			return Category::WalkableTile;
-		case Wall:
-			return Category::UnwalkableTile;
 		default:
 			return Category::Tile;
 	}
@@ -45,9 +44,9 @@ Tile::ID Tile::getID() const
 	return mId;
 }
 
-Tile::Type Tile::getType() const
+unsigned int Tile::getTilesetIndex() const
 {
-	return mType;
+	return Table[mType].tilesetIndex;
 }
 
 bool Tile::isWalkable() const

@@ -11,7 +11,7 @@
 Tilemap::Tilemap(const TextureHolder& textures)
 : SceneNode(Category::Tilemap)
 , mTileset(textures.get(Textures::Tiles))
-, mSize(20u, 30u)
+, mSize(50u, 50u)
 , mBounds(0.f, 0.f, mSize.x * Tile::Size, mSize.y * Tile::Size)
 , mImage()
 , mMap()
@@ -21,14 +21,13 @@ Tilemap::Tilemap(const TextureHolder& textures)
 		for (auto y = 0u; y < mSize.y; ++y)
 		{
 			Tile::ID id(x, y);	
-			addTile(id, Tile::Type::Floor);
+			addTile(id, Tile::Type::None);
 		}
 
-	createRoom(sf::IntRect(5, 5, 4, 4));
-	createRoom(sf::IntRect(0, 0, 10, 10));
-	createRoom(sf::IntRect(6, 1, 3, 3));
-	createRoom(sf::IntRect(2, 4, 2, 2));
-	createRoom(sf::IntRect(2, 7, 1, 1));
+	createRoom(sf::IntRect(0, 0, 4, 8));
+	createRoom(sf::IntRect(18, 0, 10, 10));
+	createHorizontalTunnel(3, 18, 3);
+
 
 	mImage.setPrimitiveType(sf::Quads);
     mImage.resize(mSize.x * mSize.y * 4);
@@ -36,11 +35,11 @@ Tilemap::Tilemap(const TextureHolder& textures)
 		for (auto y = 0u; y < mSize.y; ++y)
 		{
 			auto tile = mMap[Tile::ID(x,y)];
-			auto type = tile->getType();
+			auto tilesetIndex = tile->getTilesetIndex();
 
 			// find its position in the tileset texture
-			auto tu = type % (mTileset.getSize().x / Tile::Size);
-			auto tv = type / (mTileset.getSize().x / Tile::Size);
+			auto tu = tilesetIndex % (mTileset.getSize().x / Tile::Size);
+			auto tv = tilesetIndex / (mTileset.getSize().x / Tile::Size);
 
 			// get a pointer to the current tile's quad
 			sf::Vertex* quad = &mImage[(x + y * mSize.x) * 4];
@@ -145,13 +144,21 @@ void Tilemap::createRoom(sf::IntRect bounds)
 	for (auto x = bounds.left; x < bounds.left + bounds.width; ++x)
 		for (auto y = bounds.top; y < bounds.top + bounds.height; ++y)
 		{
-			Tile::ID firstRow(x, bounds.top);
-			Tile::ID lastRow(x, bounds.top + bounds.height - 1);
-			Tile::ID firstColumn(bounds.left, y);
-			Tile::ID lastColumn(bounds.left + bounds.height - 1, y);		
-			addTile(firstRow, Tile::Type::Wall);
-			addTile(lastRow, Tile::Type::Wall);
-			addTile(firstColumn, Tile::Type::Wall);
-			addTile(lastColumn, Tile::Type::Wall);
+			Tile::ID id(x,y);
+			if (x == bounds.left || x == bounds.left + bounds.width - 1 ||
+				y == bounds.top || y == bounds.top + bounds.height - 1)
+				addTile(id, Tile::Type::Wall);
+			else
+				addTile(id, Tile::Type::Floor);
 		}
+}
+
+void Tilemap::createHorizontalTunnel(int x1, int x2, int y)
+{
+	for (auto x = std::min(x1, x2); x < std::max(x1, x2) + 1; ++x)
+	{		
+		addTile(Tile::ID(x, y - 1u)	, Tile::Type::TunnelWall);
+		addTile(Tile::ID(x, y)		, Tile::Type::TunnelFloor);
+		addTile(Tile::ID(x, y + 1u)	, Tile::Type::TunnelWall);
+	}
 }

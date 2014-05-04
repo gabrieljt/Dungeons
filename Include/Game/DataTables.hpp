@@ -38,7 +38,7 @@ struct CharacterData
 struct TileData
 {
 	Textures::ID					texture;
-	sf::IntRect						textureRect;	
+	unsigned int 					tilesetIndex;
 };
 
 struct ParticleData
