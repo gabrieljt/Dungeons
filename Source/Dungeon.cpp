@@ -1,8 +1,10 @@
 #include <Game/Dungeon.hpp>
 #include <Game/Foreach.hpp>
+#include <Game/Utility.hpp>
 #include <Game/TextNode.hpp>
 #include <Game/ParticleNode.hpp>
 #include <Game/SoundNode.hpp>
+
 #include <SFML/Graphics/RenderTarget.hpp>
 
 #include <algorithm>
@@ -221,7 +223,8 @@ void Dungeon::buildScene()
 	// Add player's character
 	std::unique_ptr<Character> player(new Character(Character::Player, mTextures, mFonts));
 	mPlayerCharacter = player.get();
-	mSpawnPosition = mTilemap->getTile(Tile::ID(2u, 2u))->getPosition();
+	auto randomRoomCenter = mTilemap->getRoomCenter(randomInt(mTilemap->getNumberRooms()));
+	mSpawnPosition = sf::Vector2f(randomRoomCenter.x * Tile::Size, randomRoomCenter.y * Tile::Size);
 	mPlayerCharacter->setPosition(mSpawnPosition);
 	mSceneLayers[Main]->attachChild(std::move(player));
 }

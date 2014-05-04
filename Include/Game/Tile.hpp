@@ -35,6 +35,7 @@ class Tile : public SceneNode
 		virtual sf::FloatRect	getBoundingRect() const;
 
 		ID 						getID() const;
+		Type 					getType() const;
 		unsigned int 			getTilesetIndex() const;
 		bool					isWalkable() const;
 

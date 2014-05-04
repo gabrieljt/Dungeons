@@ -154,6 +154,11 @@ void centerOrigin(Animation& animation)
 	animation.setOrigin(std::floor(bounds.width / 2.f), std::floor(bounds.height / 2.f));
 }
 
+sf::Vector2i getCenter(sf::IntRect bounds)
+{
+	return sf::Vector2i(bounds.left + bounds.width / 2, bounds.top + bounds.height / 2);
+}
+
 float toDegree(float radian)
 {
 	return 180.f / 3.141592653589793238462643383f * radian;
@@ -168,6 +173,11 @@ int randomInt(int exclusiveMax)
 {
 	std::uniform_int_distribution<> distr(0, exclusiveMax - 1);
 	return distr(RandomEngine);
+}
+
+int randomInt(int exclusiveMin, int exclusiveMax)
+{
+	return exclusiveMin + randomInt(exclusiveMax);
 }
 
 float length(sf::Vector2f vector)

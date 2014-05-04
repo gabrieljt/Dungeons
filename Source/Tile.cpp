@@ -44,6 +44,11 @@ Tile::ID Tile::getID() const
 	return mId;
 }
 
+Tile::Type Tile::getType() const
+{
+	return mType;
+}
+
 unsigned int Tile::getTilesetIndex() const
 {
 	return Table[mType].tilesetIndex;

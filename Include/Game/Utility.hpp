@@ -3,6 +3,7 @@
 
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/System/Vector2.hpp>
+#include <SFML/Graphics/Rect.hpp>
 
 #include <sstream>
 
@@ -33,12 +34,16 @@ void			centerOrigin(sf::Sprite& sprite);
 void			centerOrigin(sf::Text& text);
 void			centerOrigin(Animation& animation);
 
+// Return Rect center
+sf::Vector2i 	getCenter(sf::IntRect bounds);
+
 // Degree/radian conversion
 float			toDegree(float radian);
 float			toRadian(float degree);
 
 // Random number generation
 int				randomInt(int exclusiveMax);
+int				randomInt(int exclusiveMin, int exclusiveMax);
 
 // Vector operations
 float			length(sf::Vector2f vector);

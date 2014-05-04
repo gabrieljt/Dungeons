@@ -1,10 +1,12 @@
 #include <Game/Tilemap.hpp>
+#include <Game/Foreach.hpp>
 #include <Game/Utility.hpp>
 #include <Game/ResourceHolder.hpp>
 
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
 
+#include <algorithm>
 #include <cassert>
 
 
@@ -15,6 +17,7 @@ Tilemap::Tilemap(const TextureHolder& textures)
 , mBounds(0.f, 0.f, mSize.x * Tile::Size, mSize.y * Tile::Size)
 , mImage()
 , mMap()
+, mRooms()
 {
 	// fills the map, easier to build vertex array
 	for (auto x = 0u; x < mSize.x; ++x)
@@ -24,11 +27,7 @@ Tilemap::Tilemap(const TextureHolder& textures)
 			addTile(id, Tile::Type::None);
 		}
 
-	createRoom(sf::IntRect(0, 0, 4, 8));
-	createRoom(sf::IntRect(18, 0, 10, 10));
-	createTunnelH(3, 18, 3);
-	createRoom(sf::IntRect(5, 20, 40, 13));
-	createTunnelV(4, 20, 10);
+	generateMap();
 
 	mImage.setPrimitiveType(sf::Quads);
     mImage.resize(mSize.x * mSize.y * 4);
@@ -36,6 +35,20 @@ Tilemap::Tilemap(const TextureHolder& textures)
 		for (auto y = 0u; y < mSize.y; ++y)
 		{
 			auto tile = mMap[Tile::ID(x,y)];
+			auto type = tile->getType();			
+			if (type == Tile::Type::None)
+			{
+				std::vector<Tilemap::TilePtr> neighbours;
+				getNeighbours(tile->getID(), neighbours);
+				FOREACH (auto neighbour, neighbours)
+				{
+					if (neighbour->isWalkable())
+					{
+						addTile(tile->getID(), Tile::Type::Wall);
+						tile = mMap[Tile::ID(x,y)];
+					}	
+				}
+			}
 			auto tilesetIndex = tile->getTilesetIndex();
 
 			// find its position in the tileset texture
@@ -115,6 +128,17 @@ void Tilemap::getNeighbours(sf::Vector2f position, std::vector<TilePtr>& neighbo
 	getNeighbours(id, neighbours);
 }
 
+unsigned int Tilemap::getNumberRooms()
+{
+	return mRooms.size();
+}
+
+sf::Vector2i Tilemap::getRoomCenter(unsigned int index)
+{
+	assert(index < mRooms.size());
+	return getCenter(*mRooms[index]);
+}
+
 sf::FloatRect Tilemap::getBoundingRect() const
 {
 	return mBounds;
@@ -145,15 +169,14 @@ bool Tilemap::validateTile(Tile::ID id)
 
 void Tilemap::createRoom(sf::IntRect bounds)
 {	
+	Tile::ID id(bounds.left, bounds.top);
+	BoundsPtr room(new sf::IntRect(bounds.left, bounds.top, bounds.width, bounds.height));
+	mRooms.push_back(std::move(room));
 	for (auto x = bounds.left; x < bounds.left + bounds.width; ++x)
 		for (auto y = bounds.top; y < bounds.top + bounds.height; ++y)
 		{
 			Tile::ID id(x,y);
-			if (x == bounds.left || x == bounds.left + bounds.width - 1 ||
-				y == bounds.top || y == bounds.top + bounds.height - 1)
-				addTile(id, Tile::Type::Wall);
-			else
-				addTile(id, Tile::Type::Floor);
+			addTile(id, Tile::Type::Floor);
 		}
 }
 
@@ -161,17 +184,65 @@ void Tilemap::createTunnelH(int x1, int x2, int y)
 {
 	for (auto x = std::min(x1, x2); x < std::max(x1, x2) + 1; ++x)
 	{		
-		addTile(Tile::ID(x, y - 1u)	, Tile::Type::TunnelWall);
-		addTile(Tile::ID(x, y)		, Tile::Type::TunnelFloor);
-		addTile(Tile::ID(x, y + 1u)	, Tile::Type::TunnelWall);
+		addTile(Tile::ID(x, y), Tile::Type::Floor);
 	}
 }
 void Tilemap::createTunnelV(int y1, int y2, int x)
 {
 	for (auto y = std::min(y1, y2); y < std::max(y1, y2) + 1; ++y)
 	{		
-		addTile(Tile::ID(x - 1u, y)	, Tile::Type::TunnelWall);
-		addTile(Tile::ID(x, y)		, Tile::Type::TunnelFloor);
-		addTile(Tile::ID(x + 1u, y)	, Tile::Type::TunnelWall);
+		addTile(Tile::ID(x, y), Tile::Type::Floor);
+	}
+}
+
+void Tilemap::generateMap()
+{
+	auto maxRooms 		= std::min(mSize.x, mSize.y) / 10u;
+	auto roomMaxSize 	= std::max(mSize.x, mSize.y) / 10u;
+	auto roomMinSize 	= std::min(mSize.x, mSize.y) / 10u;
+	auto numberRooms 	= 0u;
+
+	for (auto i = 0u; i < maxRooms; ++i)
+	{
+        auto width 	= randomInt(roomMinSize, roomMaxSize);
+        auto height = randomInt(roomMinSize, roomMaxSize);
+        // Random position without going out of the boundaries of the map
+        auto x 		= randomInt(0, mSize.x - width - 1);
+        auto y 		= randomInt(0, mSize.y - height - 1);
+
+        sf::IntRect newRoom(x, y, width, height);
+		bool isSameRoom = false;
+		for (auto roomItr = mRooms.begin(); roomItr != mRooms.end(); ++roomItr)
+		{			
+			auto room = *roomItr->get();
+			if (newRoom.intersects(room));
+			{
+				isSameRoom = true;
+				break;
+			}
+		}
+
+		auto newRoomCenter = getCenter(newRoom);
+		if (numberRooms > 0)
+		{
+			auto previousRoomCenter = getCenter(*mRooms[numberRooms - 1]);
+			
+			// draw a coin (random number that is either 0 or 1)
+            if (randomInt(1) == 1)
+            {
+                // first move horizontally, then vertically
+                createTunnelH(previousRoomCenter.x, newRoomCenter.x, previousRoomCenter.y);
+                createTunnelV(previousRoomCenter.y, newRoomCenter.y, newRoomCenter.x);
+            }
+            else
+            {
+                // first move vertically, then horizontally
+                createTunnelV(previousRoomCenter.y, newRoomCenter.y, previousRoomCenter.x);
+                createTunnelH(previousRoomCenter.x, newRoomCenter.x, newRoomCenter.y);
+			}				
+		}	
+		// TODO: adjust same room bounds and center
+		createRoom(newRoom);			
+		++numberRooms;				
 	}
 }
