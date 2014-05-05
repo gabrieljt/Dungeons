@@ -240,10 +240,13 @@ void Dungeon::buildScene()
 	mTilemap->getRoom(mPlayerCharacter->getPosition(), roomTiles);
 
 	// Add slime character
+	for (auto i = 0u; i < roomTiles.size() / (1 + randomInt(roomTiles.size() / 2)); ++i)
+	{
 	std::unique_ptr<Character> slimePtr(new Character(Character::Slime, mTextures, mFonts));
 	auto slime = slimePtr.get();
-	slime->setPosition(roomTiles[2]->getBoundingRect().left, roomTiles[2]->getBoundingRect().top);
+	slime->setPosition(roomTiles[randomInt(roomTiles.size())]->getBoundingRect().left, roomTiles[randomInt(roomTiles.size())]->getBoundingRect().top);
 	mSceneLayers[Main]->attachChild(std::move(slimePtr));
+	}
 
 }
 
