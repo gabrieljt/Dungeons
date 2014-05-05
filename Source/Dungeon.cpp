@@ -69,14 +69,15 @@ bool Dungeon::hasAlivePlayer() const
 
 void Dungeon::loadTextures()
 {
-	//mTextures.load(Textures::Characters,	"Media/Textures/characters-sf.png");
-	mTextures.load(Textures::Characters,	"Media/Textures/characters.png");
-	mTextures.load(Textures::Tiles,			"Media/Textures/tiles.png");
+	//mTextures.load(Textures::Characters,			"Media/Textures/characters-sf.png");
+	mTextures.load(Textures::Characters,			"Media/Textures/characters.png");
+	mTextures.load(Textures::SlimeCharacters,		"Media/Textures/slimes.png");
+	mTextures.load(Textures::Tiles,					"Media/Textures/tiles.png");
 }
 
 void Dungeon::setupView()
 {
-	auto visibleArea = Tile::Size * 20u; // i x i cells
+	auto visibleArea = Tile::Size * 10u; // i x i cells
 	auto zoom = visibleArea / std::min(mView.getSize().x, mView.getSize().y);	
 	mView.setCenter(mSpawnPosition);	
 	mView.zoom(zoom);
@@ -183,7 +184,7 @@ void Dungeon::handleCollisions()
 			auto& character = static_cast<Character&>(*pair.first);
 			std::vector<Tilemap::TilePtr> neighbours;
 			neighbours.push_back(mTilemap->getTile(character.getPosition()));
-			mTilemap->getNeighbours(mTilemap->getTile(character.getPosition())->getID(), neighbours);
+			mTilemap->getNeighbours(character.getPosition(), neighbours);
 			FOREACH (auto tile, neighbours)
 			{
 				if (!tile->isWalkable() && tile->getBoundingRect().intersects(character.getBoundingRect()))
@@ -191,7 +192,15 @@ void Dungeon::handleCollisions()
 					handleTileCollision(character, tile);
 				}
 			}
-		}		
+		}
+		if (matchesCategories(pair, Category::PlayerCharacter, Category::EnemyCharacter))
+		{
+			auto& character = static_cast<Character&>(*pair.first);
+			auto& enemy = static_cast<Character&>(*pair.second);
+
+			character.damage(enemy.getHitpoints());
+			enemy.destroy();
+		}
 	}	
 }
 
@@ -223,10 +232,20 @@ void Dungeon::buildScene()
 	// Add player's character
 	std::unique_ptr<Character> player(new Character(Character::Player, mTextures, mFonts));
 	mPlayerCharacter = player.get();
-	auto randomRoomCenter = mTilemap->getRoomCenter(randomInt(mTilemap->getNumberRooms()));
+	auto randomRoomCenter = mTilemap->getRandomRoomCenter();
 	mSpawnPosition = sf::Vector2f(randomRoomCenter.x * Tile::Size, randomRoomCenter.y * Tile::Size);
 	mPlayerCharacter->setPosition(mSpawnPosition);
 	mSceneLayers[Main]->attachChild(std::move(player));
+
+	std::vector<Tilemap::TilePtr> roomTiles;
+	mTilemap->getRoom(mPlayerCharacter->getPosition(), roomTiles);
+
+	// Add slime character
+	std::unique_ptr<Character> slimePtr(new Character(Character::Slime, mTextures, mFonts));
+	auto slime = slimePtr.get();
+	slime->setPosition(roomTiles[2]->getBoundingRect().left, roomTiles[2]->getBoundingRect().top);
+	mSceneLayers[Main]->attachChild(std::move(slimePtr));
+
 }
 
 sf::FloatRect Dungeon::getViewBounds() const

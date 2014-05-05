@@ -12,12 +12,18 @@ std::vector<CharacterData> initializeCharacterData()
 	std::vector<CharacterData> data(Character::TypeCount);
 
 	data[Character::Player].hitpoints = 40;
-	data[Character::Player].speed = 96.f;
+	data[Character::Player].speed = 64.f;
 	data[Character::Player].texture = Textures::Characters;
 	//data[Character::Player].textureRect = sf::IntRect(16, 48, 16, 16);
 	data[Character::Player].textureRect = sf::IntRect(18, 48, 12, 16);
 	//data[Character::Player].textureRect = sf::IntRect(2, 0, 19, 24);
 	data[Character::Player].hasIdleAnimation = false;
+
+	data[Character::Slime].hitpoints = 10;
+	data[Character::Slime].speed = 16.f;
+	data[Character::Slime].texture = Textures::SlimeCharacters;
+	data[Character::Slime].textureRect = sf::IntRect(18, 18, 15, 12);
+	data[Character::Slime].hasIdleAnimation = false;
 
 	return data;
 }

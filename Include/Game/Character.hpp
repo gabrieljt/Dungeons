@@ -15,7 +15,8 @@ class Character : public Entity
 	public:
 		enum Type
 		{
-			Player,						
+			Player,			
+			Slime,			
 			TypeCount
 		};
 

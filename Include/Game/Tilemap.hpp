@@ -33,8 +33,9 @@ class Tilemap : public SceneNode
 		void 							getNeighbours(Tile::ID id, std::vector<TilePtr>& neighbours);
 		void 							getNeighbours(sf::Vector2f position, std::vector<TilePtr>& neighbours);
 
-		unsigned int 					getNumberRooms();
-		sf::Vector2i 					getRoomCenter(unsigned int index);
+		void							getRoom(Tile::ID id, std::vector<TilePtr>& room);
+		void							getRoom(sf::Vector2f position, std::vector<TilePtr>& room);
+		sf::Vector2i 					getRandomRoomCenter();
 
 
 	private:

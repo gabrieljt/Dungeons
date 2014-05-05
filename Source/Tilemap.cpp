@@ -77,13 +77,34 @@ void Tilemap::getNeighbours(sf::Vector2f position, std::vector<TilePtr>& neighbo
 	getNeighbours(id, neighbours);
 }
 
-unsigned int Tilemap::getNumberRooms()
+void Tilemap::getRoom(Tile::ID id, std::vector<TilePtr>& tiles)
 {
-	return mRooms.size();
+	if (validateTile(id))
+	{
+		for (auto roomItr = mRooms.begin(); roomItr != mRooms.end(); ++roomItr)
+		{			
+			sf::IntRect room = *roomItr->get();
+			if (room.contains(id.first, id.second))
+			{
+				for (auto x = room.left; x < room.left + room.width; ++x)
+					for (auto y = room.top; y < room.top + room.height; ++y)
+					{
+						tiles.push_back(getTile(Tile::ID(x, y)));
+					}
+			}
+		}
+	}
 }
 
-sf::Vector2i Tilemap::getRoomCenter(unsigned int index)
+void Tilemap::getRoom(sf::Vector2f position, std::vector<TilePtr>& tiles)
 {
+	Tile::ID id(position.x / Tile::Size, position.y / Tile::Size);
+	getRoom(id, tiles);
+}
+
+sf::Vector2i Tilemap::getRandomRoomCenter()
+{
+	unsigned int index = randomInt(mRooms.size());
 	assert(index < mRooms.size());
 	return getCenter(*mRooms[index]);
 }
@@ -95,24 +116,19 @@ sf::FloatRect Tilemap::getBoundingRect() const
 
 void Tilemap::drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const
 {
-	// apply the transform
 	states.transform *= getTransform();
-    
-	// apply the tileset texture
 	states.texture = &mTileset;
-
-	// draw the vertex array
 	target.draw(mImage, states);
 }
 	
 void Tilemap::updateCurrent(sf::Time dt, CommandQueue& commands)
 {
-	// TODO: update tiles and vertex array?
+	// TODO: update tiles and vertex array? not now.
 }
 
 bool Tilemap::validateTile(Tile::ID id)
 {
-    return id.first >= 0 && id.first < mSize.x && id.second >=0 && id.second < mSize.y;
+    return id.first >= 0 && id.first < mSize.x && id.second >= 0 && id.second < mSize.y;
 }
 
 void Tilemap::createRoom(sf::IntRect bounds)
@@ -124,7 +140,10 @@ void Tilemap::createRoom(sf::IntRect bounds)
 		for (auto y = bounds.top; y < bounds.top + bounds.height; ++y)
 		{
 			Tile::ID id(x,y);
-			addTile(id, Tile::Type::Floor);
+			if (id.first == 0u || id.first == mSize.x - 1u || id.second == 0u || id.second == mSize.y - 1u)
+				addTile(id, Tile::Type::Wall);
+			else
+				addTile(id, Tile::Type::Floor);
 		}
 }
 
@@ -146,8 +165,12 @@ void Tilemap::createTunnelV(int y1, int y2, int x)
 
 void Tilemap::generateMap()
 {	
-	mSize.x = 80u;
-	mSize.y = 45u;
+	// TODO: improve generation...
+	int randomFactor = 10;
+	int randomFactorX = 1 + randomInt(randomFactor);
+	int randomFactorY = 1 + randomInt(randomFactor);
+	mSize.x = 10u + 10 * randomFactorX;
+	mSize.y = 10u + 10 * randomFactorY;
 	mBounds = sf::FloatRect(0.f, 0.f, mSize.x * Tile::Size, mSize.y * Tile::Size);
 	// Fills the map, easier to manage
 	for (auto x = 0u; x < mSize.x; ++x)
@@ -157,8 +180,8 @@ void Tilemap::generateMap()
 			addTile(id, Tile::Type::None);
 		}
 
-	auto maxRooms 		= 30u;
-	auto roomMinSize 	= 6u;
+	auto maxRooms 		= std::max(mSize.x, mSize.y) / std::min(randomFactorX, randomFactorY);
+	auto roomMinSize 	= 3u;
 	auto roomMaxSize 	= 10u;
 	auto numberRooms 	= 0u;
 	// Generate Rooms (Floor)
@@ -166,7 +189,6 @@ void Tilemap::generateMap()
 	{
         auto width 	= roomMinSize + randomInt(roomMaxSize);
         auto height = roomMinSize + randomInt(roomMaxSize);
-        // Random position without going out of the boundaries of the map
         auto x 		= randomInt(mSize.x - width - 1);
         auto y 		= randomInt(mSize.y - height - 1);
 
@@ -188,16 +210,13 @@ void Tilemap::generateMap()
 			{
 				auto previousRoomCenter = getCenter(*mRooms[numberRooms - 1]);
 				
-				// draw a coin (random number that is either 0 or 1)
 	            if (randomInt(1) == 1)
 	            {
-	                // first move horizontally, then vertically
 	                createTunnelH(previousRoomCenter.x, newRoomCenter.x, previousRoomCenter.y);
 	                createTunnelV(previousRoomCenter.y, newRoomCenter.y, newRoomCenter.x);
 	            }
 	            else
 	            {
-	                // first move vertically, then horizontally
 	                createTunnelV(previousRoomCenter.y, newRoomCenter.y, previousRoomCenter.x);
 	                createTunnelH(previousRoomCenter.x, newRoomCenter.x, newRoomCenter.y);
 				}				
@@ -238,20 +257,16 @@ void Tilemap::generateMapImage()
 		{
 			auto tilesetIndex = mMap[Tile::ID(x,y)]->getTilesetIndex();
 
-			// find its position in the tileset texture
 			auto tu = tilesetIndex % (mTileset.getSize().x / Tile::Size);
 			auto tv = tilesetIndex / (mTileset.getSize().x / Tile::Size);
 
-			// get a pointer to the current tile's quad
 			sf::Vertex* quad = &mImage[(x + y * mSize.x) * 4];
 
-			// define its 4 corners
 			quad[0].position = sf::Vector2f(x * Tile::Size, y * Tile::Size);
 			quad[1].position = sf::Vector2f((x + 1) * Tile::Size, y * Tile::Size);
 			quad[2].position = sf::Vector2f((x + 1) * Tile::Size, (y + 1) * Tile::Size);
 			quad[3].position = sf::Vector2f(x * Tile::Size, (y + 1) * Tile::Size);
 
-			// define its 4 texture coordinates
 			quad[0].texCoords = sf::Vector2f(tu * Tile::Size, tv * Tile::Size);
 			quad[1].texCoords = sf::Vector2f((tu + 1) * Tile::Size, tv * Tile::Size);
 			quad[2].texCoords = sf::Vector2f((tu + 1) * Tile::Size, (tv + 1) * Tile::Size);
