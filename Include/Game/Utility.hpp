@@ -43,7 +43,6 @@ float			toRadian(float degree);
 
 // Random number generation
 int				randomInt(int exclusiveMax);
-int				randomInt(int exclusiveMin, int exclusiveMax);
 
 // Vector operations
 float			length(sf::Vector2f vector);

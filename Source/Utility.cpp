@@ -175,11 +175,6 @@ int randomInt(int exclusiveMax)
 	return distr(RandomEngine);
 }
 
-int randomInt(int exclusiveMin, int exclusiveMax)
-{
-	return exclusiveMin + randomInt(exclusiveMax);
-}
-
 float length(sf::Vector2f vector)
 {
 	return std::sqrt(vector.x * vector.x + vector.y * vector.y);

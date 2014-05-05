@@ -47,6 +47,7 @@ class Tilemap : public SceneNode
 		void 							createTunnelH(int x1, int x2, int y);
 		void 							createTunnelV(int y1, int y2, int x);
 		void							generateMap();
+		void 							generateMapImage();
 
 
 	private:
