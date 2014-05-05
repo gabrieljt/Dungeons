@@ -25,8 +25,9 @@ Dungeon::Dungeon(sf::RenderTarget& outputTarget, FontHolder& fonts, SoundPlayer&
 , mTilemap()
 , mSpawnPosition()
 , mPlayerCharacter(nullptr)
+, mEnemySpawnPoints()
 , mBloomEffect()
-{
+{	
 	mSceneTexture.create(mTarget.getSize().x, mTarget.getSize().y);
 
 	loadTextures();
@@ -37,6 +38,7 @@ Dungeon::Dungeon(sf::RenderTarget& outputTarget, FontHolder& fonts, SoundPlayer&
 void Dungeon::update(sf::Time dt)
 {	
 	adaptViewPosition();
+	destroyEntitiesOutsideView();
 
 	while (!mCommandQueue.isEmpty())
 		mSceneGraph.onCommand(mCommandQueue.pop(), dt);
@@ -45,6 +47,7 @@ void Dungeon::update(sf::Time dt)
 	handleCollisions();
 
 	mSceneGraph.removeWrecks();
+	spawnEnemies();
 
 	mSceneGraph.update(dt, mCommandQueue);
 	adaptPlayerPosition();
@@ -236,21 +239,97 @@ void Dungeon::buildScene()
 	mPlayerCharacter->setPosition(mSpawnPosition);
 	mSceneLayers[Main]->attachChild(std::move(player));
 
-	std::vector<Tilemap::TilePtr> roomTiles;
-	mTilemap->getRoom(mPlayerCharacter->getPosition(), roomTiles);
+	addEnemies();
+}
 
-	// Add slime character
-	for (auto i = 0u; i < roomTiles.size() / (1 + randomInt(roomTiles.size() / 2)); ++i)
+void Dungeon::addEnemy(Character::Type type, float x, float y)
+{
+	CharacterSpawnPoint spawn(type, x, y);
+	mEnemySpawnPoints.push_back(spawn);
+}
+
+void Dungeon::addEnemies()
+{
+	auto roomRandomFactor = 2;
+	// TODO: max number of enemies to spawn, better room distribution
+	std::vector<Tilemap::TilePtr> roomTiles;
+	mTilemap->getRooms(roomTiles);
+	for (auto i = 0u; i < roomTiles.size(); i += 1 + randomInt(roomRandomFactor))
 	{
-	std::unique_ptr<Character> slimePtr(new Character(Character::Slime, mTextures, mFonts));
-	auto slime = slimePtr.get();
-	slime->setPosition(roomTiles[randomInt(roomTiles.size())]->getBoundingRect().left, roomTiles[randomInt(roomTiles.size())]->getBoundingRect().top);
-	mSceneLayers[Main]->attachChild(std::move(slimePtr));
+		// chance % of spawning enemy; TODO: create function!
+		auto chance = 0.05f;
+		if ((randomInt(101)) / 100.f >= 1.f - chance)
+			addEnemy(Character::Slime, roomTiles[i]->getBoundingRect().left, roomTiles[i]->getBoundingRect().top);			
 	}
 
+	std::sort(mEnemySpawnPoints.begin(), mEnemySpawnPoints.end(), [] (CharacterSpawnPoint lhs, CharacterSpawnPoint rhs)
+	{
+		return lhs.x < rhs.x && lhs.y < rhs.y;
+	});
+}
+
+void Dungeon::spawnEnemies()
+{
+	// TODO: use list instead of vector
+	// Spawn all enemies entering the battlefireld area this frame
+	std::vector<std::vector<CharacterSpawnPoint>::iterator> spawnedPoints;
+	for (auto itr = mEnemySpawnPoints.begin(); itr != mEnemySpawnPoints.end(); ++itr)
+	{
+		CharacterSpawnPoint spawn = *itr;
+		if (getBattlefieldBounds().contains(spawn.x, spawn.y))
+		{
+			std::unique_ptr<Character> enemy(new Character(spawn.type, mTextures, mFonts));
+			enemy->setPosition(spawn.x, spawn.y);
+			mSceneLayers[Main]->attachChild(std::move(enemy));
+
+			spawnedPoints.push_back(itr);
+		}	
+	}
+	while (!spawnedPoints.empty())
+	{
+		mEnemySpawnPoints.erase(spawnedPoints.back());
+		spawnedPoints.pop_back();
+	}
+}
+
+void Dungeon::destroyEntitiesOutsideView()
+{
+	Command enemyCollector;
+	enemyCollector.category = Category::EnemyCharacter;
+	enemyCollector.action = derivedAction<Character>([this] (Character& enemy, sf::Time)
+	{
+		// TODO: save enemy current attributes
+		if (!enemy.isDestroyed() && !getBattlefieldBounds().intersects(enemy.getBoundingRect()))
+			addEnemy(enemy.getType(), enemy.getPosition().x, enemy.getPosition().y);
+	});
+
+	Command command;
+	command.category = Category::Character;
+	command.action = derivedAction<Entity>([this] (Entity& e, sf::Time)
+	{
+		if (!getBattlefieldBounds().intersects(e.getBoundingRect()))
+		{
+			e.destroy();			
+		}		
+	});
+	mCommandQueue.push(enemyCollector);
+	mCommandQueue.push(command);
 }
 
 sf::FloatRect Dungeon::getViewBounds() const
 {
 	return sf::FloatRect(mView.getCenter() - mView.getSize() / 2.f, mView.getSize());
+}
+
+sf::FloatRect Dungeon::getBattlefieldBounds() const
+{
+	const auto borderDistance 	=  Tile::Size / 2;
+	// Return view bounds + some area, where enemies spawn
+    auto bounds 				=  getViewBounds();
+    bounds.left 				-= 10.f * borderDistance;
+    bounds.top 					-= 10.f * borderDistance;
+    bounds.width 				+= 20.f * borderDistance;
+    bounds.height 				+= 20.f * borderDistance;
+    
+    return bounds;
 }

@@ -28,6 +28,7 @@ class Character : public Entity
 		virtual sf::FloatRect	getBoundingRect() const;
 		virtual void			remove();
 		virtual bool 			isMarkedForRemoval() const;
+		Type 					getType() const;
 		bool					isAllied() const;
 		float					getMaxSpeed() const;
 

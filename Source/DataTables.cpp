@@ -32,7 +32,7 @@ std::vector<TileData> initializeTileData()
 {
 	std::vector<TileData> data(Tile::TypeCount);
 
-	data[Tile::Floor].texture = Textures::Tiles;
+	data[Tile::None].texture = Textures::Tiles;
 	data[Tile::None].tilesetIndex = 16;
 
 	data[Tile::Floor].texture = Textures::Tiles;

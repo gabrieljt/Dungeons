@@ -49,7 +49,13 @@ class Dungeon : private sf::NonCopyable
 		void								updateSounds();
 
 		void								buildScene();
+		void								addEnemies();
+		void								addEnemy(Character::Type type, float relX, float relY);
+    	void								spawnEnemies();
+        
+        void 								destroyEntitiesOutsideView();
 		sf::FloatRect						getViewBounds() const;
+		sf::FloatRect						getBattlefieldBounds() const;
 
 
 	private:
@@ -59,6 +65,27 @@ class Dungeon : private sf::NonCopyable
 			Main,
 			LayerCount
 		};
+
+		template <typename EntityType>
+		struct SpawnPoint 
+		{
+			SpawnPoint(EntityType type, float x, float y)
+			: type(type)
+			, x(x)
+			, y(y)
+            , attached()
+            , hitpoints()
+			{
+			}
+
+			EntityType type;
+			float x;
+			float y;
+            bool attached;
+            int hitpoints;
+		};
+    
+        typedef SpawnPoint<Character::Type>         CharacterSpawnPoint;
 
 
 	private:
@@ -74,8 +101,11 @@ class Dungeon : private sf::NonCopyable
 		CommandQueue						mCommandQueue;
 
 		Tilemap*							mTilemap;
+
 		sf::Vector2f						mSpawnPosition;		
 		Character*							mPlayerCharacter;
+
+		std::vector<CharacterSpawnPoint>    mEnemySpawnPoints;
 
 		BloomEffect							mBloomEffect;
 };

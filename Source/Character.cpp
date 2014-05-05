@@ -69,6 +69,11 @@ void Character::remove()
 	Entity::remove();
 }
 
+Character::Type Character::getType() const
+{
+	return mType;
+}
+
 bool Character::isAllied() const
 {
 	return mType == Player;

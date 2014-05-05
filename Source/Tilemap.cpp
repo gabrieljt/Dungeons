@@ -102,6 +102,16 @@ void Tilemap::getRoom(sf::Vector2f position, std::vector<TilePtr>& tiles)
 	getRoom(id, tiles);
 }
 
+void Tilemap::getRooms(std::vector<TilePtr>& tiles)
+{
+	for (auto roomItr = mRooms.begin(); roomItr != mRooms.end(); ++roomItr)
+	{
+		sf::IntRect room = *roomItr->get();
+		Tile::ID id(room.left, room.top);
+		getRoom(id, tiles);
+	}
+}
+
 sf::Vector2f Tilemap::getRandomRoomCenter()
 {
 	unsigned int index = randomInt(mRooms.size());
@@ -211,7 +221,7 @@ void Tilemap::generateMap()
 			{
 				auto previousRoomCenter = getCenter(*mRooms[numberRooms - 1]);
 				
-	            if (randomInt(1) == 1)
+	            if (randomInt(2))
 	            {
 	                createTunnelH(previousRoomCenter.x, newRoomCenter.x, previousRoomCenter.y);
 	                createTunnelV(previousRoomCenter.y, newRoomCenter.y, newRoomCenter.x);
