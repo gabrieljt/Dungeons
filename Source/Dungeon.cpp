@@ -139,19 +139,18 @@ bool matchesCategories(SceneNode::Pair& colliders, Category::Type type1, Categor
 	}
 }
 
-void handleTileCollision(Character& character, Tilemap::TilePtr tile)
+void handleBoundsCollision(SceneNode& lhs, SceneNode& rhs)
 {
-	auto characterBounds 	= character.getBoundingRect();
-	auto characterPosition 	= character.getPosition();			
-	auto tileBounds 		= tile->getBoundingRect();
-	// Tile does not have centered origin
-	auto tilePosition 		= tile->getPosition() + sf::Vector2f(Tile::Size / 2, Tile::Size / 2);
+	auto lhsBounds 			= lhs.getBoundingRect();
+	auto lhsPosition 		= lhs.getPosition();			
+	auto rhsBounds 			= rhs.getBoundingRect();
+	auto rhsPosition 		= rhs.getPosition();
 	// check X axis penetration through left or right
-	auto penetrationX		= std::min(std::abs(tileBounds.left + tileBounds.width - characterBounds.left) 
-										, std::abs(characterBounds.left + characterBounds.width - tileBounds.left));
+	auto penetrationX		= std::min(std::abs(rhsBounds.left + rhsBounds.width - lhsBounds.left) 
+										, std::abs(lhsBounds.left + lhsBounds.width - rhsBounds.left));
 	// check X axis penetration through up or down
-	auto penetrationY		= std::min(std::abs(tileBounds.top + tileBounds.height - characterBounds.top)
-										, std::abs(characterBounds.top + characterBounds.height - tileBounds.top));
+	auto penetrationY		= std::min(std::abs(rhsBounds.top + rhsBounds.height - lhsBounds.top)
+										, std::abs(lhsBounds.top + lhsBounds.height - rhsBounds.top));
 	// the least penetrating axis
 	auto penetratingAxis 	= std::min(penetrationX, penetrationY);
 	auto penetratingX 		= penetratingAxis < penetrationY;
@@ -159,20 +158,20 @@ void handleTileCollision(Character& character, Tilemap::TilePtr tile)
 	if (penetratingX)
 	{
 		// Colliding Left
-		if (characterPosition.x > tilePosition.x)
-			character.setPosition(characterPosition.x + penetrationX, characterPosition.y);
+		if (lhsPosition.x > rhsPosition.x)
+			lhs.setPosition(lhsPosition.x + penetrationX, lhsPosition.y);
 		// Colliding Right
 		else
-			character.setPosition(characterPosition.x - penetrationX, characterPosition.y);
+			lhs.setPosition(lhsPosition.x - penetrationX, lhsPosition.y);
 	}
 	else
 	{
 		// Colliding Top 
-		if (characterPosition.y > tilePosition.y)
-			character.setPosition(characterPosition.x, characterPosition.y + penetrationY);
+		if (lhsPosition.y > rhsPosition.y)
+			lhs.setPosition(lhsPosition.x, lhsPosition.y + penetrationY);
 		// Colliding Bottom
 		else
-			character.setPosition(characterPosition.x, characterPosition.y - penetrationY);
+			lhs.setPosition(lhsPosition.x, lhsPosition.y - penetrationY);
 	}			
 }
 
@@ -192,10 +191,14 @@ void Dungeon::handleCollisions()
 			{
 				if (!tile->isWalkable() && tile->getBoundingRect().intersects(character.getBoundingRect()))
 				{
-					handleTileCollision(character, tile);
+					handleBoundsCollision(character, static_cast<SceneNode&>(*tile));
 				}
-			}
+			}		
 		}
+
+		if (matchesCategories(pair, Category::Character, Category::Character))
+			handleBoundsCollision(*pair.first, *pair.second);
+
 		if (matchesCategories(pair, Category::PlayerCharacter, Category::EnemyCharacter))
 		{
 			auto& character = static_cast<Character&>(*pair.first);
@@ -257,7 +260,7 @@ void Dungeon::addEnemies()
 	for (auto i = 0u; i < roomTiles.size(); i += 1 + randomInt(roomRandomFactor))
 	{
 		// chance % of spawning enemy; TODO: create function!
-		auto chance = 0.05f;
+		auto chance = 0.1f;
 		if ((randomInt(101)) / 100.f >= 1.f - chance)
 			addEnemy(Character::Slime, roomTiles[i]->getBoundingRect().left, roomTiles[i]->getBoundingRect().top);			
 	}
