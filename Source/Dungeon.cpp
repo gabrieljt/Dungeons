@@ -232,8 +232,7 @@ void Dungeon::buildScene()
 	// Add player's character
 	std::unique_ptr<Character> player(new Character(Character::Player, mTextures, mFonts));
 	mPlayerCharacter = player.get();
-	auto randomRoomCenter = mTilemap->getRandomRoomCenter();
-	mSpawnPosition = sf::Vector2f(randomRoomCenter.x * Tile::Size, randomRoomCenter.y * Tile::Size);
+	mSpawnPosition = mTilemap->getRandomRoomCenter();
 	mPlayerCharacter->setPosition(mSpawnPosition);
 	mSceneLayers[Main]->attachChild(std::move(player));
 

@@ -102,11 +102,12 @@ void Tilemap::getRoom(sf::Vector2f position, std::vector<TilePtr>& tiles)
 	getRoom(id, tiles);
 }
 
-sf::Vector2i Tilemap::getRandomRoomCenter()
+sf::Vector2f Tilemap::getRandomRoomCenter()
 {
 	unsigned int index = randomInt(mRooms.size());
 	assert(index < mRooms.size());
-	return getCenter(*mRooms[index]);
+	auto roomCenter = getCenter(*mRooms[index]);
+	return sf::Vector2f(roomCenter.x * Tile::Size, roomCenter.y * Tile::Size);
 }
 
 sf::FloatRect Tilemap::getBoundingRect() const
