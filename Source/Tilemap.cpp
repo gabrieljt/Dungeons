@@ -177,7 +177,7 @@ void Tilemap::createTunnelV(int y1, int y2, int x)
 void Tilemap::generateMap()
 {	
 	// TODO: improve generation...
-	int randomFactor = 10;
+	int randomFactor = 2;
 	int randomFactorX = 1 + randomInt(randomFactor);
 	int randomFactorY = 1 + randomInt(randomFactor);
 	mSize.x = 10u + 10 * randomFactorX;

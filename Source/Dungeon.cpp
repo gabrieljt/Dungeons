@@ -142,9 +142,7 @@ bool matchesCategories(SceneNode::Pair& colliders, Category::Type type1, Categor
 void handleBoundsCollision(SceneNode& lhs, SceneNode& rhs)
 {
 	auto lhsBounds 			= lhs.getBoundingRect();
-	auto lhsPosition 		= lhs.getPosition();			
 	auto rhsBounds 			= rhs.getBoundingRect();
-	auto rhsPosition 		= rhs.getPosition();
 	// check X axis penetration through left or right
 	auto penetrationX		= std::min(std::abs(rhsBounds.left + rhsBounds.width - lhsBounds.left) 
 										, std::abs(lhsBounds.left + lhsBounds.width - rhsBounds.left));
@@ -154,6 +152,14 @@ void handleBoundsCollision(SceneNode& lhs, SceneNode& rhs)
 	// the least penetrating axis
 	auto penetratingAxis 	= std::min(penetrationX, penetrationY);
 	auto penetratingX 		= penetratingAxis < penetrationY;
+
+	auto lhsPosition 		= lhs.getPosition();			
+	auto rhsPosition 		= rhs.getPosition();
+	// adjust positions, Tile does not have centralized origin
+	if (lhsPosition.x == lhsBounds.left || lhsPosition.y == lhsBounds.top)
+		lhsPosition = sf::Vector2f(lhsBounds.left + Tile::Size / 2.f, lhsBounds.top + Tile::Size / 2.f);
+	if (rhsPosition.x == rhsBounds.left || rhsPosition.y == rhsBounds.top)
+		rhsPosition = sf::Vector2f(rhsBounds.left + Tile::Size / 2.f, rhsBounds.top + Tile::Size / 2.f);
 
 	if (penetratingX)
 	{
@@ -254,13 +260,13 @@ void Dungeon::addEnemy(Character::Type type, float x, float y)
 void Dungeon::addEnemies()
 {
 	auto roomRandomFactor = 2;
-	// TODO: max number of enemies to spawn, better room distribution
+	// TODO: max number of enemies to spawn, better room access (Tilemap API) and distribution
 	std::vector<Tilemap::TilePtr> roomTiles;
 	mTilemap->getRooms(roomTiles);
 	for (auto i = 0u; i < roomTiles.size(); i += 1 + randomInt(roomRandomFactor))
 	{
 		// chance % of spawning enemy; TODO: create function!
-		auto chance = 0.1f;
+		auto chance = 0.05f;
 		if ((randomInt(101)) / 100.f >= 1.f - chance)
 			addEnemy(Character::Slime, roomTiles[i]->getBoundingRect().left, roomTiles[i]->getBoundingRect().top);			
 	}
