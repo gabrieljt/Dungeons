@@ -2,6 +2,7 @@
 #include <Game/Character.hpp>
 #include <Game/Tile.hpp>
 #include <Game/Particle.hpp>
+#include <Game/Utility.hpp>
 
 
 // For std::bind() placeholders _1, _2, ...
@@ -11,7 +12,7 @@ std::vector<CharacterData> initializeCharacterData()
 {
 	std::vector<CharacterData> data(Character::TypeCount);
 
-	data[Character::Player].hitpoints = 40;
+	data[Character::Player].hitpoints = 50;
 	data[Character::Player].speed = 64.f;
 	data[Character::Player].texture = Textures::Characters;
 	//data[Character::Player].textureRect = sf::IntRect(16, 48, 16, 16);
@@ -23,7 +24,11 @@ std::vector<CharacterData> initializeCharacterData()
 	data[Character::Slime].speed = 16.f;
 	data[Character::Slime].texture = Textures::SlimeCharacters;
 	data[Character::Slime].textureRect = sf::IntRect(18, 18, 15, 12);
-	data[Character::Slime].hasIdleAnimation = false;
+	data[Character::Slime].hasIdleAnimation = false;	
+	data[Character::Slime].directions.push_back(Direction(+90.f, 16.f));
+	data[Character::Slime].directions.push_back(Direction(+180.f, 16.f));
+	data[Character::Slime].directions.push_back(Direction(+270.f, 16.f));
+	data[Character::Slime].directions.push_back(Direction(+360.f, 16.f));
 
 	return data;
 }
